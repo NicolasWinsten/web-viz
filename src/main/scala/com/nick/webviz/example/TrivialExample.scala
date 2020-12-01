@@ -1,4 +1,8 @@
+package com.nick.webviz.example
+
 import java.awt.Font
+
+import com.nick.webviz.{NodeFactory, NodeLike}
 
 import scala.swing.Color
 import scala.util.Random

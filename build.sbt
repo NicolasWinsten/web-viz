@@ -1,5 +1,5 @@
 organization := "com.nick"
-name := "web"
+name := "web-viz"
 version := "1.0"
 scalaVersion := "2.13.4"
 

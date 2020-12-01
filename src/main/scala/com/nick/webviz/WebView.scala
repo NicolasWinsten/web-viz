@@ -1,27 +1,32 @@
-import swing._
-import event._
-import java.awt.Color
-import java.net.{URI, URL}
+package com.nick.webviz
 
-import Physics.Vector2
+import java.awt.Color
+
+import Physics._
 import javax.swing.SwingUtilities
 
 import scala.swing.BorderPanel.Position._
+import scala.swing._
+import scala.swing.event._
+
+/**
+ * GUI View of a new Web
+ */
 /**
  * GUI View of a new Web
  */
 class WebView(nodeFactory: NodeFactory, private val WIDTH: Int, private val HEIGHT: Int)
   extends SimpleSwingApplication {
-  def center = Vector2(WIDTH / 2, HEIGHT / 2)
+  def center: Vector2 = Vector2(WIDTH / 2, HEIGHT / 2)
 
   // construct new web for this gui
   val web = new Web(WIDTH-10, HEIGHT-10)
   // Give web slightly smaller bounds to reduce issue where Node labels are off screen
 
   // define our top frame
-  val frame = new MainFrame{
+  val frame: MainFrame = new MainFrame{
     title = "Web"
-    val canvas = new Canvas {
+    val canvas: Canvas = new Canvas {
       preferredSize = new Dimension(WIDTH,HEIGHT)
     }
     val textField = new TextField()
@@ -60,7 +65,6 @@ class WebView(nodeFactory: NodeFactory, private val WIDTH: Int, private val HEIG
    * Panel that the web is drawn on
    */
   class Canvas extends Panel {
-//    def center = Vector2(WIDTH / 2, HEIGHT / 2)
 
     /**
      * Paint the current state of the Web on this Canvas
@@ -72,16 +76,14 @@ class WebView(nodeFactory: NodeFactory, private val WIDTH: Int, private val HEIG
       for (a <- web.arcs) drawArc(a)
       for ((n,_) <- web.nodes) drawNode(n)
 
-      def drawArc(arc: web.Arc) = {
+      def drawArc(arc: web.Arc): Unit = {
         g.setColor(Color.BLACK)
-        val sourceLabelMetrics = g.getFontMetrics(arc.source.font)
-        val destLabelMetrics = g.getFontMetrics(arc.dest.font)
         val startPoint = web.nodes(arc.source) + center
         val endPoint = web.nodes(arc.dest) + center
         g.drawLine(startPoint.x.toInt, startPoint.y.toInt, endPoint.x.toInt, endPoint.y.toInt)
       }
 
-       def drawNode(node: NodeLike) = {
+      def drawNode(node: NodeLike): Unit = {
         val pos = web.nodes(node) + center
         val metrics = g.getFontMetrics(node.font)
         // clear a rectangle behind the node text so that node label is not covered by drawn arcs
@@ -131,7 +133,7 @@ class WebView(nodeFactory: NodeFactory, private val WIDTH: Int, private val HEIG
         case 128 => web.collapse(node) // ctrl + click
         case 512 => node.specialAction() // middle mouse click
         case _ =>
-    }
+      }
       case _ => // no node found at the mouse click positiong
     }
 

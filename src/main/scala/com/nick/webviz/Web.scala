@@ -1,9 +1,11 @@
+package com.nick.webviz
 
 import java.awt.Font
 
-import scala.collection.mutable
 import Physics._
 
+import scala.annotation.tailrec
+import scala.collection.mutable
 import scala.swing.Color
 import scala.util.Random
 
@@ -11,11 +13,11 @@ class Web(width: Int, height: Int) { // TODO add bounds to web or at least make 
   /**
    * Maps NodeLikes in this web to their position vector in the web
    */
-  val nodes = mutable.HashMap[NodeLike, Vector2]()
+  val nodes: mutable.Map[NodeLike, Vector2] = mutable.HashMap[NodeLike, Vector2]()
   /**
    * Set of all the arcs present in this web connecting NodeLikes
    */
-  val arcs = mutable.HashSet[Arc]()
+  val arcs: mutable.Set[Arc] = mutable.HashSet[Arc]()
 
   /**
    * Nodes will be repelled if they are closer than this distance.
@@ -41,7 +43,7 @@ class Web(width: Int, height: Int) { // TODO add bounds to web or at least make 
 
   /**
    * Add given node to center of web
-   * @param node
+   * @param node NodeLike to add to this web
    */
   def add(node: NodeLike): Unit = add(node, Vector2(0,0))
 
@@ -71,7 +73,7 @@ class Web(width: Int, height: Int) { // TODO add bounds to web or at least make 
       arcs filter (a => a.source == n || a.dest == n) map {
         case Arc(`n`, other) => other
         case Arc(other, `n`) => other
-      } filter (other => degree(other) < 2) foreach(rem(_))
+      } filter (other => degree(other) < 2) foreach rem
       rem(n)
     }
   }
@@ -80,7 +82,7 @@ class Web(width: Int, height: Int) { // TODO add bounds to web or at least make 
   /**
    * Update positions of Nodes in the web
    */
-  def update() = {
+  def update(): Unit = {
     arcs.foreach(_.pull()) // have each arc pull their nodes together
 
     // brute force a collision detection between nodes
@@ -101,9 +103,11 @@ class Web(width: Int, height: Int) { // TODO add bounds to web or at least make 
 
       /**
        * Given a position that is outside the Web, return a new position vector that is on the bounds of the Web
+       *
        * @param pos position that is possibly out of bounds
        * @return new position that is in bounds
        */
+      @tailrec
       def bound(pos: Vector2): Vector2 = {
         val x = pos.x
         val y = pos.y
@@ -122,13 +126,13 @@ class Web(width: Int, height: Int) { // TODO add bounds to web or at least make 
    * @param n NodeLike in this Web
    * @return number of arcs connected to this NodeLike in this Web
    */
-  def degree(n: NodeLike) = arcs count (a => a.source == n || a.dest == n)
+  def degree(n: NodeLike): Int = arcs count (a => a.source == n || a.dest == n)
 
   /**
    * Return the NodeLike near the given coordinate vector in this Web
-   * @param coords
+   * @param coords position in web
    * @param maxDist maximum distance the returned node can be from the given coords
-   * @return NodeLike near the coords
+   * @return Some(NodeLike) near the coords, None if there is no Node
    */
   def getNodeAt(coords: Vector2, maxDist: Int): Option[NodeLike] = {
     for ((n, pos) <- nodes if dist(coords, pos) <= maxDist) { return Some(n)}
@@ -137,7 +141,7 @@ class Web(width: Int, height: Int) { // TODO add bounds to web or at least make 
   /**
    * Debugging print
    */
-  def print =  {
+  def print(): Unit =  {
     for (n <- nodes) println(n)
     for (a <- arcs) println(s"arc from ${a.source} to ${a.dest} with length ${a.length}")
   }
@@ -152,11 +156,11 @@ class Web(width: Int, height: Int) { // TODO add bounds to web or at least make 
     /**
      * @return physical length of this Arc determined by the distance between its incident Nodes
      */
-    def length = dist(nodes(source), nodes(dest))
+    def length: Double = dist(nodes(source), nodes(dest))
     /**
      * Pull incident nodes together by modifying their collider position
      */
-    def pull() = {
+    def pull(): Unit = {
       val sourcePos = nodes(source)
       val destPos = nodes(dest)
 
@@ -181,7 +185,7 @@ trait NodeLike {
   val children: Set[NodeLike]
   val parents: Set[NodeLike]
 
-  def label = _label
+  def label: String = _label
 
   val textColor: Color
   val font: Font
@@ -206,10 +210,10 @@ object Physics {
    * Vector with 2 components
    */
   case class Vector2(x: Double, y: Double) {
-    def +(v: Vector2) = Vector2(this.x + v.x, this.y + v.y)
-    def -(v: Vector2) = Vector2(this.x - v.x, this.y - v.y)
-    def *(m: Double) = Vector2(this.x * m, this.y * m)
-    def unary_- = Vector2(-this.x, -this.y)
+    def +(v: Vector2): Vector2 = Vector2(this.x + v.x, this.y + v.y)
+    def -(v: Vector2): Vector2 = Vector2(this.x - v.x, this.y - v.y)
+    def *(m: Double): Vector2 = Vector2(this.x * m, this.y * m)
+    def unary_- : Vector2 = Vector2(-this.x, -this.y)
   }
 
   /**
