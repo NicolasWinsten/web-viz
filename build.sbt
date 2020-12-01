@@ -8,8 +8,6 @@ lazy val root = (project in file(".")).settings(
   name := "web"
 )
 
-// HTML parser backed by Jsoup
-ThisBuild / libraryDependencies += "net.ruippeixotog" %% "scala-scraper" % "2.2.0"
 // Scala Swing module
 ThisBuild / libraryDependencies += "org.scala-lang.modules" %% "scala-swing" % "3.0.0"
 
