@@ -1,4 +1,4 @@
-organization := "com.nick"
+organization := "nicolaswinsten"
 name := "web-viz"
 version := "1.0"
 scalaVersion := "2.13.4"
