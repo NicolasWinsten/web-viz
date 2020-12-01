@@ -11,4 +11,4 @@ libraryDependencies += "net.ruippeixotog" %% "scala-scraper" % "2.2.0"
 
 githubTokenSource := TokenSource.GitConfig("github.token")
 githubOwner := "NicolasWinsten"
-githubRepository := "web"
+githubRepository := "web-viz"
