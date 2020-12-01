@@ -1,7 +1,7 @@
 ThisBuild / organization := "nicolaswinsten"
-ThisBuild / version := "1.0"
+ThisBuild / version := "1.0.1"
 ThisBuild / scalaVersion := "2.13.4"
-ThisBuild / name := "web-viz"
+name := "web-viz"
 
 // Scala Swing module
 libraryDependencies += "org.scala-lang.modules" %% "scala-swing" % "3.0.0"
@@ -12,3 +12,7 @@ libraryDependencies += "net.ruippeixotog" %% "scala-scraper" % "2.2.0"
 githubTokenSource := TokenSource.GitConfig("github.token")
 githubOwner := "NicolasWinsten"
 githubRepository := "web-viz"
+
+publishConfiguration := publishConfiguration.value.withOverwrite(true)
+publishLocalConfiguration := publishLocalConfiguration.value.withOverwrite(true)
+//pushRemoteCacheConfiguration := pushRemoteCacheConfiguration.value.withOverwrite(true)
