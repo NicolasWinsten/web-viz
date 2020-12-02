@@ -47,6 +47,6 @@ object Main extends App {
 }
 ```
 
-Run that Main, and type help in the text field to take a look at how you can traverse your graph data.
+Run that Main, and type help in the text field of the Web window to take a look at how you can traverse your graph data.
 
-If you have any questions, problems, or suggestions please let me know by creating an issue. If there's something about the code design you find abhorrent, please let me know that as well.  I'm new to Scala.
+If you have any questions, problems, or suggestions, please let me know by creating an issue. If there's something about my code you find abhorrent, please let me know that as well.  I'm new to Scala.
