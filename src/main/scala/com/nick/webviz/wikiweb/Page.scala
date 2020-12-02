@@ -34,7 +34,7 @@ sealed abstract class Page(val title: String) extends NodeLike {
    * spelling but with different capitalization, so we can make a decent equals method by just setting our
    * title to all upper.
    */
-  private lazy val fixedTitle = title.toUpperCase()
+  protected lazy val fixedTitle = title.toUpperCase()
 
 
   override def equals(obj: Any): Boolean = obj match {
@@ -64,8 +64,9 @@ case class Article(override val title: String) extends Page(title) {
   lazy override val children: Set[NodeLike] = Set()
 
 
-  override val textColor: Color = Color.BLACK
-  override val font = new Font("TimesRoman", Font.ITALIC, 10)
+  override val textColor: Color = if (fixedTitle == "KEVIN BACON") Color.MAGENTA else Color.BLACK
+  override val font = if (fixedTitle == "KEVIN BACON") new Font("Helvetica", Font.ITALIC, 40)
+    else new Font("TimesRoman", Font.ITALIC, 10)
 }
 
 /**
@@ -73,7 +74,7 @@ case class Article(override val title: String) extends Page(title) {
  * @param title title for the page
  */
 case class Category(override val title: String) extends Page(title) {
-  lazy val members: Seq[Article] = Wiki.filterDisambs(WikiParser.getCategoryMembers(doc)) map (Article(_))
+  lazy val members: Seq[Article] = Wiki.filterDisambs(WikiParser.getCategoryMembers(doc, 10)) map (Article(_))
   lazy val subcategories: Seq[Category] = Wiki.filterDisambs(WikiParser.getSubcategories(doc)) map (Category(_))
 
   // strip "Category" from label

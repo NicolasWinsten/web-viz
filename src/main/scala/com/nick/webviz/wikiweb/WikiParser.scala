@@ -41,9 +41,10 @@ object WikiParser {
   /**
    * Extract the members from a given Wikipedia Category page
    * @param doc HTML Document of Wikipedia Category page
+   * @param lim maximum number of fetch requests
    * @return category member titles
    */
-  def getCategoryMembers(doc: Document): Seq[String] = {
+  def getCategoryMembers(doc: Document, lim: Int): Seq[String] = {
     val firstMembers = doc >?> element("#mw-pages .mw-content-ltr") match {
       case Some(x) => x >> elementList("a") >> attr("title")
       case None => Nil
@@ -54,7 +55,8 @@ object WikiParser {
     val link = ((doc >> elementList("#mw-pages > a")) find (a => a.text == "next page")) >?> attr("href")
    
     link match {
-      case Some(Some(link)) => firstMembers ++: getCategoryMembers(browser.get(url + link.stripPrefix("/")))
+      case Some(Some(link)) if lim > 0 => firstMembers ++: getCategoryMembers(
+        browser.get(url + link.stripPrefix("/")), lim - 1)
       case _ => firstMembers
     }
   }
