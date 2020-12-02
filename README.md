@@ -9,6 +9,9 @@ The above two examples is what you get when you use Wikipedia articles and categ
 Left/Right clicking a title will produce more nodes in the web that you can also click on.
 
 # How to use:
+If you just want to play around with the wiki-web example shown above, just download the executable [here](https://gofile.io/d/PFFzrT).
+
+If you want to make a web using your own graph data, do the following:
 
 Add this to your `build.sbt`:
 ```scala
