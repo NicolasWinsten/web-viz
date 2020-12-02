@@ -42,7 +42,7 @@ trait NodeFactory {
 
 Here's a [simple example](https://github.com/NicolasWinsten/web-viz/blob/master/src/main/scala/com/nick/webviz/example/TrivialExample.scala) of what that might look like.
 
-After that, all you have to do is create a new WebView and pass in the `NodeFactory` you made:
+After that, all you have to do is create a new `WebView` and pass in the `NodeFactory` you made:
 ```scala
 import com.nick.webviz.WebView
 
