@@ -9,7 +9,13 @@ import scala.collection.mutable
 import scala.swing.Color
 import scala.util.Random
 
-class Web(width: Int, height: Int) { // TODO add bounds to web or at least make it canvas scrollable somehow
+/**
+ * A Web is a node-edge graph in which each node has a simulated position.
+ * Node's repel each other and Arcs pull Nodes closer together.
+ * @param width horizontal bound
+ * @param height vertical bound
+ */
+class Web(width: Int, height: Int) {
   /**
    * Maps NodeLikes in this web to their position vector in the web
    */
@@ -60,14 +66,18 @@ class Web(width: Int, height: Int) { // TODO add bounds to web or at least make 
    * Add all the given NodeLike's children to the Web, but only if the given NodeLike is already in the Web
    * @param n NodeLike to expand web with
    */
-  def spin(n: NodeLike): Unit = if (nodes contains n) n.children.foreach(add(_, nodes(n))) else println(s"$n aint here mf")
+  def spin(n: NodeLike): Unit = if (nodes contains n) n.children.foreach(add(_, nodes(n)))
 
   /**
    * Add all the given NodeLike's parents to the Web, but only if the given NodeLike is already in the Web
    * @param n NodeLike to expand web with
    */
-  def climb(n: NodeLike): Unit = if (nodes contains n) n.parents.foreach(add(_, nodes(n))) else println(s"$n aint here mf")
-  // TODO add collapse on a NodeLike that will remove the NodeLike and any nodes that are singly connected to it
+  def climb(n: NodeLike): Unit = if (nodes contains n) n.parents.foreach(add(_, nodes(n)))
+
+  /**
+   * Remove the given NodeLike from the web along with all of its adjacent NodeLikes with degree 1
+   * @param n NodeLike in this web to collapse
+   */
   def collapse(n: NodeLike): Unit = {
     if (nodes contains n) {
       arcs filter (a => a.source == n || a.dest == n) map {
@@ -181,20 +191,38 @@ class Web(width: Int, height: Int) { // TODO add bounds to web or at least make 
  * object's lifetime.
  */
 trait NodeLike {
+  /**
+   * Label to display this Node with
+   */
   protected val _label: String
+  /**
+   * Children nodes of this Node
+   */
   val children: Set[NodeLike]
+  /**
+   * Parent Nodes of this Node
+   */
   val parents: Set[NodeLike]
 
   def label: String = _label
 
+  /**
+   * display color of label
+   */
   val textColor: Color
+  /**
+   * display font of label
+   */
   val font: Font
 
+  /**
+   * define special action.  This special action wille execute when middle mouse clicking on a Node in WebView
+   */
   def specialAction()
 }
 
 /**
- * NodeFactory that can take in String and return a NodeLike
+ * NodeFactory that can take in String and return a NodeLike.
  */
 trait NodeFactory {
   def produceNode(s: String): NodeLike

@@ -52,8 +52,7 @@ object WikiParser {
     // Category pages with a lot of members will contain a link to a "next page" with more
     // follow the link to the next page to get more category members
     val link = ((doc >> elementList("#mw-pages > a")) find (a => a.text == "next page")) >?> attr("href")
-    println(link)
-    println(firstMembers)
+   
     link match {
       case Some(Some(link)) => firstMembers ++: getCategoryMembers(browser.get(url + link.stripPrefix("/")))
       case _ => firstMembers

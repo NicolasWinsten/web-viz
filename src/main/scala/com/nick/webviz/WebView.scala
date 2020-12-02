@@ -12,15 +12,12 @@ import scala.swing.event._
 /**
  * GUI View of a new Web
  */
-/**
- * GUI View of a new Web
- */
 class WebView(nodeFactory: NodeFactory, private val WIDTH: Int, private val HEIGHT: Int)
   extends SimpleSwingApplication {
   def center: Vector2 = Vector2(WIDTH / 2, HEIGHT / 2)
 
   // construct new web for this gui
-  val web = new Web(WIDTH-10, HEIGHT-10)
+  val web = new Web(WIDTH-15, HEIGHT-15)
   // Give web slightly smaller bounds to reduce issue where Node labels are off screen
 
   // define our top frame
@@ -37,10 +34,10 @@ class WebView(nodeFactory: NodeFactory, private val WIDTH: Int, private val HEIG
     }
 
     listenTo(textField.keys)
-    listenTo(canvas.mouse.clicks) // TODO can we get this to work?? who knows
+    listenTo(canvas.mouse.clicks)
 
-    reactions += { // listen to Enter hits on text field
-      case KeyPressed(component, key, mods, loc) if key == Key.Enter =>
+    reactions += { // listen to Enter hits on text field and mouse clicks on canvas
+      case KeyPressed(_, key, _, _) if key == Key.Enter =>
         handleCommand(textField.text)
         textField.text = ""
       case MouseClicked(_, point, modifiers, _, _) => handleClick(Vector2(point.x, point.y), modifiers)
@@ -95,8 +92,6 @@ class WebView(nodeFactory: NodeFactory, private val WIDTH: Int, private val HEIG
         g.drawString(node.label, pos.x.toInt - metrics.stringWidth(node.label)/2, pos.y.toInt + metrics.getHeight/2)
       }
     }
-
-
   }
 
   /**
@@ -122,9 +117,7 @@ class WebView(nodeFactory: NodeFactory, private val WIDTH: Int, private val HEIG
   }
 
   private def handleClick(pos: Physics.Vector2, modifiers: Key.Modifiers): Unit = {
-    println(s"$modifiers")
-
-    val webPos = pos - center
+    val webPos = pos - center // pos of the click in web
     web.getNodeAt(webPos, 20) match {
       case Some(node) => modifiers match {
         case 0 => web.spin(node)    // left click
@@ -134,7 +127,7 @@ class WebView(nodeFactory: NodeFactory, private val WIDTH: Int, private val HEIG
         case 512 => node.specialAction() // middle mouse click
         case _ =>
       }
-      case _ => // no node found at the mouse click positiong
+      case _ => // no node found at the mouse click position
     }
 
   }
@@ -142,7 +135,7 @@ class WebView(nodeFactory: NodeFactory, private val WIDTH: Int, private val HEIG
   /**
    * message to display in Dialog if user needs asks for help
    */
-  val helpMessage: String =
+  private val helpMessage: String =
     """
       |Commands:
       |      add <Node> :  add the given Node to the web

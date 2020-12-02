@@ -1,5 +1,5 @@
 ThisBuild / organization := "nicolaswinsten"
-ThisBuild / version := "1.0.1"
+ThisBuild / version := "1.0.2"
 ThisBuild / scalaVersion := "2.13.4"
 name := "web-viz"
 
@@ -13,6 +13,3 @@ githubTokenSource := TokenSource.GitConfig("github.token")
 githubOwner := "NicolasWinsten"
 githubRepository := "web-viz"
 
-publishConfiguration := publishConfiguration.value.withOverwrite(true)
-publishLocalConfiguration := publishLocalConfiguration.value.withOverwrite(true)
-//pushRemoteCacheConfiguration := pushRemoteCacheConfiguration.value.withOverwrite(true)

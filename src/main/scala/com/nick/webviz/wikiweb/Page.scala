@@ -8,13 +8,34 @@ import com.nick.webviz.{NodeFactory, NodeLike}
 
 import scala.swing.Color
 
+/**
+ * Abstract class for a Wikipedia page.
+ * @param title title for the page
+ */
 sealed abstract class Page(val title: String) extends NodeLike {
+  /**
+   * HTML Document of this Wikipedia Page
+   */
   lazy val doc: browser.DocumentType = WikiParser.fetchHTML(title)
+  /**
+   * The Category pages that this Page is a member of
+   */
   lazy val categories: Seq[Category] = Wiki.filterDisambs(WikiParser.getCategories(doc)) map (Category(_))
 
+  /**
+   * To be a NodeLike, we let the parents of a Page be its encompassing Categories
+   */
   lazy override val parents: Set[NodeLike] = categories.toSet
 
+  /**
+   * Wikipedia is full of redirects which makes comparing Pages difficult because Page("United States")
+   * and Page("USA") should be considered the same but there's no good way to efficiently confirm that without
+   * fetching the HTML doc and extracting the webpage's title. However, a lot of redirects are the same
+   * spelling but with different capitalization, so we can make a decent equals method by just setting our
+   * title to all upper.
+   */
   private lazy val fixedTitle = title.toUpperCase()
+
 
   override def equals(obj: Any): Boolean = obj match {
     case other: Page => other.fixedTitle == fixedTitle
@@ -23,10 +44,18 @@ sealed abstract class Page(val title: String) extends NodeLike {
 
   override def hashCode(): Int = fixedTitle.hashCode
 
+  /**
+   * Open this Page in the browser
+   */
   override def specialAction(): Unit = Wiki.openWebpage(this)
 
 }
 
+/**
+ * An Article page is a Wikipedia page in the MAIN namespace. In other words it is a normal wikipedia article,
+ * not a Category or Talk or Portal.
+ * @param title title of the page
+ */
 case class Article(override val title: String) extends Page(title) {
   override val _label: String = title
   /**
@@ -34,14 +63,24 @@ case class Article(override val title: String) extends Page(title) {
    */
   lazy override val children: Set[NodeLike] = Set()
 
+
   override val textColor: Color = Color.BLACK
   override val font = new Font("TimesRoman", Font.ITALIC, 10)
 }
+
+/**
+ * A Category page from Wikipedia. Category pages have subcategories and category members.
+ * @param title title for the page
+ */
 case class Category(override val title: String) extends Page(title) {
   lazy val members: Seq[Article] = Wiki.filterDisambs(WikiParser.getCategoryMembers(doc)) map (Article(_))
   lazy val subcategories: Seq[Category] = Wiki.filterDisambs(WikiParser.getSubcategories(doc)) map (Category(_))
 
+  // strip "Category" from label
   override val _label: String = title.stripPrefix("Category:")
+  /**
+   * Let the children of a Category be its members and subcategories
+   */
   lazy override val children: Set[NodeLike] = (subcategories ++: members).toSet
 
 
