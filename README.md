@@ -1,5 +1,12 @@
 # web-viz
 An interactive graph visualizer!
+![Kevin Bacon](/KevinBaconViz.PNG)
+![Spider web](/SpiderWebViz.PNG)
+![Numbers](/NumbersViz.PNG)
+
+web-viz is a tool that can allow you to interactively traverse whatever graph data you want!
+The above two examples is what you get when you use Wikipedia articles and categories as your graph data.
+Left/Right clicking a title will produce more nodes in the web that you can also click on.
 
 # How to use:
 
@@ -40,3 +47,6 @@ object Main extends App {
 }
 ```
 
+Run that Main, and type help in the text field to take a look at how you can traverse your graph data.
+
+If you have any questions, problems, or suggestions please let me know by creating an issue. If there's something about the code design you find abhorrent, please let me know that as well.  I'm new to Scala.
