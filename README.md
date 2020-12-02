@@ -10,6 +10,7 @@ Left/Right clicking a title will produce more nodes in the web that you can also
 
 # How to use:
 If you just want to play around with the wiki-web example shown above, just download the executable [here](https://gofile.io/d/PFFzrT).
+Enter "help" in the text field to see the basic actions.  Also, middle mouse clicking on a node will open its wikipedia webpage, so you can read about it!
 
 If you want to make a web using your own graph data, do the following:
 
