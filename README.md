@@ -19,7 +19,7 @@ Add this to your `build.sbt`:
 // Scala Swing required for formatting your Nodes with Color and Font
 libraryDependencies += "org.scala-lang.modules" %% "scala-swing" % "3.0.0"
 
-externalResolvers += "web-viz packages" at "https://maven.pkg.github.com/NicolasWinsten/web"
+externalResolvers += "web-viz packages" at "https://maven.pkg.github.com/NicolasWinsten/web-viz"
 libraryDependencies += "nicolaswinsten" %% "web-viz" % "1.0.2"
 ```
 
