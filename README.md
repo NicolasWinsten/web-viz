@@ -1,14 +1,25 @@
 # web-viz
 An interactive graph visualizer!
+![Kevin Bacon](/KevinBaconViz.PNG)
+![Spider web](/SpiderWebViz.PNG)
+![Numbers](/NumbersViz.PNG)
+
+web-viz is a tool that can allow you to interactively traverse whatever graph data you want!
+The above two examples is what you get when you use Wikipedia articles and categories as your graph data.
+Left/Right clicking a title will produce more nodes in the web that you can also click on.
 
 # How to use:
+If you just want to play around with the wiki-web example shown above, just download the executable [here](https://gofile.io/d/PFFzrT).
+Enter "help" in the text field to see the basic actions.  Also, middle mouse clicking on a node will open its wikipedia webpage, so you can read about it!
+
+If you want to make a web using your own graph data, do the following:
 
 Add this to your `build.sbt`:
 ```scala
 // Scala Swing required for formatting your Nodes with Color and Font
 libraryDependencies += "org.scala-lang.modules" %% "scala-swing" % "3.0.0"
 
-externalResolvers += "web-viz packages" at "https://maven.pkg.github.com/NicolasWinsten/web"
+externalResolvers += "web-viz packages" at "https://maven.pkg.github.com/NicolasWinsten/web-viz"
 libraryDependencies += "nicolaswinsten" %% "web-viz" % "1.0.2"
 ```
 
@@ -31,7 +42,7 @@ trait NodeFactory {
 
 Here's a [simple example](https://github.com/NicolasWinsten/web-viz/blob/master/src/main/scala/com/nick/webviz/example/TrivialExample.scala) of what that might look like.
 
-After that, all you have to do is create a new WebView and pass in the `NodeFactory` you made:
+After that, all you have to do is create a new `WebView` and pass in the `NodeFactory` you made:
 ```scala
 import com.nick.webviz.WebView
 
@@ -40,3 +51,6 @@ object Main extends App {
 }
 ```
 
+Run that Main, and type help in the text field of the Web window to take a look at how you can traverse your graph data.
+
+If you have any questions, problems, or suggestions, please let me know by creating an issue. If there's something about my code you find abhorrent, please let me know that as well.  I'm new to Scala.
