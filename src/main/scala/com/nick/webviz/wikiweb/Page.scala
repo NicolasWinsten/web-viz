@@ -1,12 +1,11 @@
 package com.nick.webviz.wikiweb
 
-import java.awt.{Color, Font}
 import java.net.{URI, URL}
 
 import com.nick.webviz.wikiweb.WikiParser.browser
 import com.nick.webviz.{NodeFactory, NodeLike}
 
-import scala.swing.Color
+import java.awt.{Color, Font}
 
 /**
  * Abstract class for a Wikipedia page.
@@ -65,7 +64,7 @@ case class Article(override val title: String) extends Page(title) {
 
 
   override val textColor: Color = if (fixedTitle == "KEVIN BACON") Color.MAGENTA else Color.BLACK
-  override val font = if (fixedTitle == "KEVIN BACON") new Font("Helvetica", Font.ITALIC, 40)
+  override val font: Font = if (fixedTitle == "KEVIN BACON") new Font("Helvetica", Font.ITALIC, 40)
     else new Font("TimesRoman", Font.ITALIC, 10)
 }
 

@@ -1,6 +1,6 @@
 package com.nick.webviz
 
-import java.awt.Font
+import scala.swing.Font
 
 import Physics._
 

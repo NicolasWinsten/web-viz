@@ -1,6 +1,6 @@
 package com.nick.webviz
 
-import java.awt.Color
+import java.awt.{Color, Font}
 
 import Physics._
 import javax.swing.SwingUtilities
@@ -11,6 +11,7 @@ import scala.swing.event._
 
 /**
  * GUI View of a new Web
+ * @param nodeFactory object that can produce NodeLikes from String
  */
 class WebView(nodeFactory: NodeFactory, private val WIDTH: Int, private val HEIGHT: Int)
   extends SimpleSwingApplication {
@@ -22,7 +23,7 @@ class WebView(nodeFactory: NodeFactory, private val WIDTH: Int, private val HEIG
 
   // define our top frame
   val frame: MainFrame = new MainFrame{
-    title = "Web"
+    title = "Web - type help"
     val canvas: Canvas = new Canvas {
       preferredSize = new Dimension(WIDTH,HEIGHT)
     }
@@ -40,8 +41,35 @@ class WebView(nodeFactory: NodeFactory, private val WIDTH: Int, private val HEIG
       case KeyPressed(_, key, _, _) if key == Key.Enter =>
         handleCommand(textField.text)
         textField.text = ""
-      case MouseClicked(_, point, modifiers, _, _) => handleClick(Vector2(point.x, point.y), modifiers)
+      case MouseClicked(_, point, modifiers, clicks, _) =>
+        if (modifiers == 256) showNodeActions(point.x, point.y) // right click
+        else if (clicks == 2) web.getNodeAt(Vector2(point.x, point.y) - center, 20) match {
+          case Some(node) => node.specialAction() // double click
+          case _ => ()
+        }
     }
+
+    /**
+     * Display the buttons that perform actions on the Node at (x,y) on the canvas
+     * @param x x-position of Node on canvas
+     * @param y y-position of Node on canvas
+     */
+    private def showNodeActions(x: Int, y: Int): Unit =
+      web.getNodeAt(Vector2(x, y) - center, 20) match {
+        case Some(node) => new PopupMenu {
+            // create buttons for PopupMenu
+            contents += new Button( Action("Show Children"){ web.spin(node); this.visible = false } )
+            contents += new Button( Action("Show Parents"){ web.climb(node); this.visible = false } )
+            contents += new Button( Action("Remove"){ web.rem(node); this.visible = false } )
+            contents += new Button( Action("Collapse"){ web.collapse(node); this.visible = false } )
+
+          // find maximum width out of the buttons
+          val maxWidth = contents map { _.maximumSize } maxBy { _.width }
+          // assign each button that width
+          contents foreach { _.maximumSize = maxWidth }
+        }.show(canvas, x, y)
+        case _ => ()
+      }
 
     /**
      * Start redrawing loop to continuously update the web state and draw it on the canvas
@@ -116,38 +144,16 @@ class WebView(nodeFactory: NodeFactory, private val WIDTH: Int, private val HEIG
     }
   }
 
-  private def handleClick(pos: Physics.Vector2, modifiers: Key.Modifiers): Unit = {
-    val webPos = pos - center // pos of the click in web
-    web.getNodeAt(webPos, 20) match {
-      case Some(node) => modifiers match {
-        case 0 => web.spin(node)    // left click
-        case 256 => web.climb(node) // right click
-        case 64 => web.rem(node)    // shift click
-        case 128 => web.collapse(node) // ctrl + click
-        case 512 => node.specialAction() // middle mouse click
-        case _ =>
-      }
-      case _ => // no node found at the mouse click position
-    }
-
-  }
 
   /**
    * message to display in Dialog if user needs asks for help
    */
   private val helpMessage: String =
     """
-      |Commands:
-      |      add <Node> :  add the given Node to the web
-      |     spin <Node> :  add the children of a pre-existing Node to the web
-      |      (or left click on Node)
-      |    climb <Node> :  add the parents of a pre-existing Node to the web
-      |       (or right click on Node)
-      |   delete <Node> :  remove the given Node from the web
-      |       (or shift click on Node)
-      |                    Aliases: del  remove  rem
-      | collapse <Node> :  remove the given Node along with all its dangling children / parents
-      |       (or ctrl + click on Node)
+      |Type Command:
+      |      add <Node> :  add new Node to the web
+      |right click node to see actions
+      |double click node for special action
       |""".stripMargin
 
 
