@@ -42,7 +42,7 @@ class WebView(nodeFactory: NodeFactory, private val WIDTH: Int, private val HEIG
         handleCommand(textField.text)
         textField.text = ""
       case MouseClicked(_, point, modifiers, clicks, _) =>
-        if (modifiers == 256) showNodeActions(point.x, point.y) // right click
+        if (modifiers == 256) showActions(point.x, point.y) // right click
         else if (clicks == 2) web.getNodeAt(Vector2(point.x, point.y) - center, 20) match {
           case Some(node) => node.specialAction() // double click
           case _ => ()
@@ -50,11 +50,12 @@ class WebView(nodeFactory: NodeFactory, private val WIDTH: Int, private val HEIG
     }
 
     /**
-     * Display the buttons that perform actions on the Node at (x,y) on the canvas
+     * Display the buttons that perform actions on the Node at (x,y) on the canvas,
+     * or other non-node actions if there wasn't a node at that location
      * @param x x-position of Node on canvas
      * @param y y-position of Node on canvas
      */
-    private def showNodeActions(x: Int, y: Int): Unit =
+    private def showActions(x: Int, y: Int): Unit =
       web.getNodeAt(Vector2(x, y) - center, 20) match {
         case Some(node) => new PopupMenu {
             // create buttons for PopupMenu
@@ -68,7 +69,9 @@ class WebView(nodeFactory: NodeFactory, private val WIDTH: Int, private val HEIG
           // assign each button that width
           contents foreach { _.maximumSize = maxWidth }
         }.show(canvas, x, y)
-        case _ => ()
+        case None => new PopupMenu { // show option to clear web if there was no Node at (x,y)
+          contents += new Button( Action("Clear Web"){ web.clear(); this.visible = false } )
+        }.show(canvas, x, y)
       }
 
     /**
@@ -139,6 +142,7 @@ class WebView(nodeFactory: NodeFactory, private val WIDTH: Int, private val HEIG
       case "SPIN" => web.spin(nodeFactory.produceNode(arg))
       case "CLIMB" => web.climb(nodeFactory.produceNode(arg))
       case "COLLAPSE" => web.collapse(nodeFactory.produceNode(arg))
+      case "CLEAR" => web.clear()
       case "HELP" => Dialog.showMessage(frame, helpMessage, "How to Use Web")
       case _ => println(s"$command not valid command")
     }

@@ -88,6 +88,14 @@ class Web(width: Int, height: Int) {
     }
   }
 
+  /**
+   * Remove all the nodes and arcs from this web
+   */
+  def clear(): Unit = {
+    nodes.clear()
+    arcs.clear()
+  }
+
 
   /**
    * Update positions of Nodes in the web
