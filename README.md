@@ -10,7 +10,7 @@ Left/Right clicking a title will produce more nodes in the web that you can also
 
 # How to use:
 If you just want to play around with the wiki-web example shown above, just download the executable [here](https://gofile.io/d/jd0kuR) (and make sure you have Java installed).
-Enter "help" in the text field to see the basic actions.  Also, double mouse clicking on a node will open its wikipedia webpage, so you can read about it!
+To start you'll have to add a new node by typing in the title of a Wikipedia page into the given text field.  For example, entering "add Spider web" will insert the node for ["Spider web"](https://en.wikipedia.org/wiki/Spider_web) into the graph.  Enter "help" in the text field to see the basic actions.  Also, double mouse clicking on a node will open its wikipedia webpage, so you can read about it!
 
 If you want to make a web using your own graph data, do the following:
 
