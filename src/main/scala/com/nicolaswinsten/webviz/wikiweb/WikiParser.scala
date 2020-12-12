@@ -1,4 +1,4 @@
-package com.nick.webviz.wikiweb
+package com.nicolaswinsten.webviz.wikiweb
 
 import net.ruippeixotog.scalascraper.browser.{Browser, JsoupBrowser}
 import net.ruippeixotog.scalascraper.dsl.DSL.Extract._

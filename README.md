@@ -44,7 +44,6 @@ Here's a [simple example](https://github.com/NicolasWinsten/web-viz/blob/master/
 
 After that, all you have to do is create a new `WebView` and pass in the `NodeFactory` you made:
 ```scala
-import com.nick.webviz.WebView
 
 object Main extends App {
   new WebView(YourNodeFactory, WINDOW_WIDTH, WINDOW_HEIGHT).main(args)

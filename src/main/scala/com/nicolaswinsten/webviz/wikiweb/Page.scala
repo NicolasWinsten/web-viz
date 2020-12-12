@@ -1,9 +1,9 @@
-package com.nick.webviz.wikiweb
+package com.nicolaswinsten.webviz.wikiweb
 
 import java.net.{URI, URL}
 
-import com.nick.webviz.wikiweb.WikiParser.browser
-import com.nick.webviz.{NodeFactory, NodeLike}
+import com.nicolaswinsten.webviz.wikiweb.WikiParser.browser
+import com.nicolaswinsten.webviz.{NodeFactory, NodeLike}
 
 import java.awt.{Color, Font}
 

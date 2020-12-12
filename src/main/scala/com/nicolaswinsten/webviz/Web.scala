@@ -1,4 +1,4 @@
-package com.nick.webviz
+package com.nicolaswinsten.webviz
 
 import scala.swing.Font
 

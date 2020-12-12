@@ -1,6 +1,6 @@
-package com.nick.webviz
+package com.nicolaswinsten.webviz
 
-import java.awt.{Color, Font}
+import java.awt.{Color}
 
 import Physics._
 import javax.swing.SwingUtilities
