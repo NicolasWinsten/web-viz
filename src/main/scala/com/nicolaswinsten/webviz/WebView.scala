@@ -36,17 +36,20 @@ class WebView(nodeFactory: NodeFactory, private val WIDTH: Int, private val HEIG
 
     listenTo(textField.keys)
     listenTo(canvas.mouse.clicks)
+    listenTo(canvas.mouse.wheel)
 
     reactions += { // listen to Enter hits on text field and mouse clicks on canvas
       case KeyPressed(_, key, _, _) if key == Key.Enter =>
         handleCommand(textField.text)
         textField.text = ""
       case MouseClicked(_, point, modifiers, clicks, _) =>
-        if (modifiers == 256) showActions(point.x, point.y) // right click
-        else if (clicks == 2) web.getNodeAt(Vector2(point.x, point.y) - center, 20) match {
+        if (modifiers == 256) showActions(point) // right click
+        else if (clicks == 2) web.getNodeAt(canvas.toWebPos(point), 20) match {
           case Some(node) => node.specialAction() // double click
           case _ => ()
         }
+        else println(canvas.toWebPos(point))
+      case MouseWheelMoved(_, point, _, rotation) => canvas.scale -= rotation*0.1*canvas.scale
     }
 
     /**
@@ -55,8 +58,8 @@ class WebView(nodeFactory: NodeFactory, private val WIDTH: Int, private val HEIG
      * @param x x-position of Node on canvas
      * @param y y-position of Node on canvas
      */
-    private def showActions(x: Int, y: Int): Unit =
-      web.getNodeAt(Vector2(x, y) - center, 20) match {
+    private def showActions(point: Point): Unit =
+      web.getNodeAt(canvas.toWebPos(point), 20) match {
         case Some(node) => new PopupMenu {
             // create buttons for PopupMenu
             contents += new Button( Action("Show Children"){ web.spin(node); this.visible = false } )
@@ -68,11 +71,13 @@ class WebView(nodeFactory: NodeFactory, private val WIDTH: Int, private val HEIG
           val maxWidth = contents map { _.maximumSize } maxBy { _.width }
           // assign each button that width
           contents foreach { _.maximumSize = maxWidth }
-        }.show(canvas, x, y)
+        }.show(canvas, point.x, point.y)
         case None => new PopupMenu { // show option to clear web if there was no Node at (x,y)
           contents += new Button( Action("Clear Web"){ web.clear(); this.visible = false } )
-        }.show(canvas, x, y)
+        }.show(canvas, point.x, point.y)
       }
+
+
 
     /**
      * Start redrawing loop to continuously update the web state and draw it on the canvas
@@ -93,7 +98,7 @@ class WebView(nodeFactory: NodeFactory, private val WIDTH: Int, private val HEIG
    * Panel that the web is drawn on
    */
   class Canvas extends Panel {
-
+    var scale = 1.0
     /**
      * Paint the current state of the Web on this Canvas
      * @param g graphics context
@@ -101,8 +106,13 @@ class WebView(nodeFactory: NodeFactory, private val WIDTH: Int, private val HEIG
     override def paintComponent(g: Graphics2D) {
       g.clearRect(0, 0, size.width, size.height)
 
+      g.translate(size.width/2, size.height/2)
+      g.scale(scale, scale) // rescale canvas for zooming
+      g.translate(-size.width/2, -size.height/2)
+
       for (a <- web.arcs) drawArc(a)
       for ((n,_) <- web.nodes) drawNode(n)
+
 
       def drawArc(arc: web.Arc): Unit = {
         g.setColor(Color.BLACK)
@@ -123,6 +133,8 @@ class WebView(nodeFactory: NodeFactory, private val WIDTH: Int, private val HEIG
         g.drawString(node.label, pos.x.toInt - metrics.stringWidth(node.label)/2, pos.y.toInt + metrics.getHeight/2)
       }
     }
+
+    def toWebPos(point: Point) = (Vector2(point.x, point.y) - center) / scale
   }
 
   /**

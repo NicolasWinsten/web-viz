@@ -249,6 +249,7 @@ object Physics {
     def +(v: Vector2): Vector2 = Vector2(this.x + v.x, this.y + v.y)
     def -(v: Vector2): Vector2 = Vector2(this.x - v.x, this.y - v.y)
     def *(m: Double): Vector2 = Vector2(this.x * m, this.y * m)
+    def /(d: Double): Vector2 = Vector2(this.x / d, this.y / d)
     def unary_- : Vector2 = Vector2(-this.x, -this.y)
   }
 
