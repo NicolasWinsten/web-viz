@@ -46,9 +46,6 @@ class WebView(nodeFactory: NodeFactory, private val WIDTH: Int, private val HEIG
       case KeyPressed(_, key, _, _) if key == Key.Enter =>
         handleCommand(textField.text)
         textField.text = ""
-
-      case KeyPressed(_, key, _, _) if key == Key.Space =>
-        web.print()
         // user clicked somewhere on canvas
       case MouseClicked(_, point, modifiers, clicks, _) =>
         if (modifiers == 256) showActions(point) // right click
@@ -56,7 +53,6 @@ class WebView(nodeFactory: NodeFactory, private val WIDTH: Int, private val HEIG
           case Some(node) => node.specialAction() // double click
           case _ => ()
         }
-        else println(s"${canvas.toWebPos(point)}")
         // user scrolled mouse wheel. scale the canvas to zoom
       case MouseWheelMoved(_, _, _, rotation) => canvas.setScale(canvas.scale - rotation * 0.1 * canvas.scale)
         // user presses mouse, initialize drag position in case user tries to pan the canvas
