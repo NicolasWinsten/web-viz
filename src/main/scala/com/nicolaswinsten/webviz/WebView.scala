@@ -15,8 +15,18 @@ import scala.swing.event._
  */
 class WebView(nodeFactory: NodeFactory, private val WIDTH: Int, private val HEIGHT: Int)
   extends SimpleSwingApplication {
+  // initialize center to center of canvas
   private var _center = Vector2(WIDTH / 2, HEIGHT / 2)
+
+  /**
+   * Reset the center of the canvas to a new point
+   * @param v
+   */
   def setCenter(v: Vector2) = _center = v
+
+  /**
+   * @return center of canvas
+   */
   def center = _center
 
   // construct new web for this gui
@@ -40,6 +50,7 @@ class WebView(nodeFactory: NodeFactory, private val WIDTH: Int, private val HEIG
     listenTo(canvas.mouse.clicks)
     listenTo(canvas.mouse.wheel)
     listenTo(canvas.mouse.moves)
+    listenTo(canvas.keys)
 
     // initialize drag position. value doesn't matter since it is reset each time mouse is pressed
     private var previousDragPos: Vector2 = center
@@ -49,6 +60,9 @@ class WebView(nodeFactory: NodeFactory, private val WIDTH: Int, private val HEIG
       case KeyPressed(_, key, _, _) if key == Key.Enter =>
         handleCommand(textField.text)
         textField.text = ""
+
+      case KeyPressed(_, key, _, _) if key == Key.Space =>
+        web.print()
         // user clicked somewhere on canvas
       case MouseClicked(_, point, modifiers, clicks, _) =>
         if (modifiers == 256) showActions(point) // right click
@@ -56,6 +70,7 @@ class WebView(nodeFactory: NodeFactory, private val WIDTH: Int, private val HEIG
           case Some(node) => node.specialAction() // double click
           case _ => ()
         }
+        else println(s"${canvas.toWebPos(point)}")
         // user scrolled mouse wheel. scale the canvas to zoom
       case MouseWheelMoved(_, _, _, rotation) => canvas.setScale(canvas.scale - rotation * 0.1 * canvas.scale)
         // user presses mouse, initialize drag position in case user tries to pan the canvas
@@ -156,6 +171,7 @@ class WebView(nodeFactory: NodeFactory, private val WIDTH: Int, private val HEIG
       }
     }
 
+    // TODO does not correctly find web position if user has both zoomed and panned
     def toWebPos(point: Point) = (Vector2(point.x, point.y) - center) / scale
   }
 

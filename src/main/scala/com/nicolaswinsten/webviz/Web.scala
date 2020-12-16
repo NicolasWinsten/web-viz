@@ -116,8 +116,8 @@ class Web(width: Int, height: Int) {
       nodes(n1) -= force
       nodes(n2) += force
 
-      nodes(n1) = bound(nodes(n1))
-      nodes(n2) = bound(nodes(n2))
+      //nodes(n1) = bound(nodes(n1))
+      //nodes(n2) = bound(nodes(n2))
 
       /**
        * Given a position that is outside the Web, return a new position vector that is on the bounds of the Web
