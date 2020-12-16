@@ -30,7 +30,7 @@ class WebView(nodeFactory: NodeFactory, private val WIDTH: Int, private val HEIG
   def center = _center
 
   // construct new web for this gui
-  val web = new Web(WIDTH-15, HEIGHT-15)
+  val web = new Web()
   // Give web slightly smaller bounds to reduce issue where Node labels are off screen
 
   // define our top frame
@@ -77,7 +77,7 @@ class WebView(nodeFactory: NodeFactory, private val WIDTH: Int, private val HEIG
       case MousePressed(_, point, _, _, _) => previousDragPos = Vector2(point.x, point.y)
         // user is dragging mouse, pan canvas accordingly by translating the center
       case MouseDragged(_, point, _) => {
-        setCenter(center - (previousDragPos - Vector2(point.x, point.y)))
+        setCenter(center - (previousDragPos - Vector2(point.x, point.y))/canvas.scale)
         previousDragPos = Vector2(point.x, point.y)
       }
     }
@@ -131,9 +131,9 @@ class WebView(nodeFactory: NodeFactory, private val WIDTH: Int, private val HEIG
     private val minScale = 0.25
     private val maxScale = 3.0
 
-    def scale = _scale
+    def scale: Double = _scale
 
-    def setScale(x: Double) =
+    def setScale(x: Double): Unit =
       _scale = if (x < minScale) minScale else if (x > maxScale) maxScale else x
 
     /**
@@ -171,8 +171,8 @@ class WebView(nodeFactory: NodeFactory, private val WIDTH: Int, private val HEIG
       }
     }
 
-    // TODO does not correctly find web position if user has both zoomed and panned
-    def toWebPos(point: Point) = (Vector2(point.x, point.y) - center) / scale
+    def toWebPos(point: Point): Vector2 =
+      ((Vector2(point.x, point.y)-Vector2(WIDTH/2, HEIGHT/2))/scale - center) + Vector2(WIDTH/2, HEIGHT/2)
   }
 
   /**
