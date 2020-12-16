@@ -4,7 +4,6 @@ import scala.swing.Font
 
 import Physics._
 
-import scala.annotation.tailrec
 import scala.collection.mutable
 import scala.swing.Color
 import scala.util.Random
@@ -15,7 +14,7 @@ import scala.util.Random
  * @param width horizontal bound
  * @param height vertical bound
  */
-class Web(width: Int, height: Int) {
+class Web {
   /**
    * Maps NodeLikes in this web to their position vector in the web
    */
@@ -115,28 +114,6 @@ class Web(width: Int, height: Int) {
 
       nodes(n1) -= force
       nodes(n2) += force
-
-      nodes(n1) = bound(nodes(n1))
-      nodes(n2) = bound(nodes(n2))
-
-      /**
-       * Given a position that is outside the Web, return a new position vector that is on the bounds of the Web
-       *
-       * @param pos position that is possibly out of bounds
-       * @return new position that is in bounds
-       */
-      @tailrec
-      def bound(pos: Vector2): Vector2 = {
-        val x = pos.x
-        val y = pos.y
-
-        if (x < -width/2) bound(Vector2(-width/2, y))
-        else if (x > width/2) bound(Vector2(width/2, y))
-        else if (y < -height/2) bound(Vector2(x, -height/2))
-        else if (y > height/2) bound(Vector2(x, height/2))
-        else pos
-      }
-
     }
   }
 
@@ -249,6 +226,7 @@ object Physics {
     def +(v: Vector2): Vector2 = Vector2(this.x + v.x, this.y + v.y)
     def -(v: Vector2): Vector2 = Vector2(this.x - v.x, this.y - v.y)
     def *(m: Double): Vector2 = Vector2(this.x * m, this.y * m)
+    def /(d: Double): Vector2 = Vector2(this.x / d, this.y / d)
     def unary_- : Vector2 = Vector2(-this.x, -this.y)
   }
 
