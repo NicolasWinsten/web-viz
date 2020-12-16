@@ -1,6 +1,6 @@
 package com.nicolaswinsten.webviz
 
-import java.awt.{Color}
+import java.awt.Color
 
 import Physics._
 import javax.swing.SwingUtilities
@@ -15,22 +15,8 @@ import scala.swing.event._
  */
 class WebView(nodeFactory: NodeFactory, private val WIDTH: Int, private val HEIGHT: Int)
   extends SimpleSwingApplication {
-  // initialize center to center of canvas
-  private var _center = Vector2(WIDTH / 2, HEIGHT / 2)
-
-  /**
-   * Reset the center of the canvas to a new point
-   * @param v
-   */
-  def setCenter(v: Vector2) = _center = v
-
-  /**
-   * @return center of canvas
-   */
-  def center = _center
-
   // construct new web for this gui
-  val web = new Web()
+  private val web = new Web()
   // Give web slightly smaller bounds to reduce issue where Node labels are off screen
 
   // define our top frame
@@ -53,7 +39,7 @@ class WebView(nodeFactory: NodeFactory, private val WIDTH: Int, private val HEIG
     listenTo(canvas.keys)
 
     // initialize drag position. value doesn't matter since it is reset each time mouse is pressed
-    private var previousDragPos: Vector2 = center
+    private var previousDragPos: Vector2 = canvas.center
 
     reactions += {
           // text command entered into text field
@@ -77,7 +63,7 @@ class WebView(nodeFactory: NodeFactory, private val WIDTH: Int, private val HEIG
       case MousePressed(_, point, _, _, _) => previousDragPos = Vector2(point.x, point.y)
         // user is dragging mouse, pan canvas accordingly by translating the center
       case MouseDragged(_, point, _) => {
-        setCenter(center - (previousDragPos - Vector2(point.x, point.y))/canvas.scale)
+        canvas.setCenter(canvas.center - (previousDragPos - Vector2(point.x, point.y)) /canvas.scale )
         previousDragPos = Vector2(point.x, point.y)
       }
     }
@@ -136,6 +122,21 @@ class WebView(nodeFactory: NodeFactory, private val WIDTH: Int, private val HEIG
     def setScale(x: Double): Unit =
       _scale = if (x < minScale) minScale else if (x > maxScale) maxScale else x
 
+
+    // initialize center to center of canvas
+    private var _center = Vector2(WIDTH / 2, HEIGHT / 2)
+
+    /**
+     * Reset the center of the canvas to a new point
+     * @param v
+     */
+    def setCenter(v: Vector2): Unit = _center = v
+
+    /**
+     * @return center of canvas
+     */
+    def center: Vector2 = _center
+
     /**
      * Paint the current state of the Web on this Canvas
      * @param g graphics context
@@ -172,7 +173,7 @@ class WebView(nodeFactory: NodeFactory, private val WIDTH: Int, private val HEIG
     }
 
     def toWebPos(point: Point): Vector2 =
-      ((Vector2(point.x, point.y)-Vector2(WIDTH/2, HEIGHT/2))/scale - center) + Vector2(WIDTH/2, HEIGHT/2)
+      ((Vector2(point.x, point.y)-Vector2(size.width/2, size.height/2))/scale - center) + Vector2(size.width/2, size.height/2)
   }
 
   /**
