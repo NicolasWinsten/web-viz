@@ -15,7 +15,9 @@ import scala.swing.event._
  */
 class WebView(nodeFactory: NodeFactory, private val WIDTH: Int, private val HEIGHT: Int)
   extends SimpleSwingApplication {
-  def center: Vector2 = Vector2(WIDTH / 2, HEIGHT / 2)
+  private var _center = Vector2(WIDTH / 2, HEIGHT / 2)
+  def setCenter(v: Vector2) = _center = v
+  def center = _center
 
   // construct new web for this gui
   val web = new Web(WIDTH-15, HEIGHT-15)
@@ -37,26 +39,38 @@ class WebView(nodeFactory: NodeFactory, private val WIDTH: Int, private val HEIG
     listenTo(textField.keys)
     listenTo(canvas.mouse.clicks)
     listenTo(canvas.mouse.wheel)
+    listenTo(canvas.mouse.moves)
 
-    reactions += { // listen to Enter hits on text field and mouse clicks on canvas
+    // initialize drag position. value doesn't matter since it is reset each time mouse is pressed
+    private var previousDragPos: Vector2 = center
+
+    reactions += {
+          // text command entered into text field
       case KeyPressed(_, key, _, _) if key == Key.Enter =>
         handleCommand(textField.text)
         textField.text = ""
+        // user clicked somewhere on canvas
       case MouseClicked(_, point, modifiers, clicks, _) =>
         if (modifiers == 256) showActions(point) // right click
         else if (clicks == 2) web.getNodeAt(canvas.toWebPos(point), 20) match {
           case Some(node) => node.specialAction() // double click
           case _ => ()
         }
-        else println(canvas.toWebPos(point))
-      case MouseWheelMoved(_, point, _, rotation) => canvas.scale -= rotation*0.1*canvas.scale
+        // user scrolled mouse wheel. scale the canvas to zoom
+      case MouseWheelMoved(_, _, _, rotation) => canvas.setScale(canvas.scale - rotation * 0.1 * canvas.scale)
+        // user presses mouse, initialize drag position in case user tries to pan the canvas
+      case MousePressed(_, point, _, _, _) => previousDragPos = Vector2(point.x, point.y)
+        // user is dragging mouse, pan canvas accordingly by translating the center
+      case MouseDragged(_, point, _) => {
+        setCenter(center - (previousDragPos - Vector2(point.x, point.y)))
+        previousDragPos = Vector2(point.x, point.y)
+      }
     }
 
     /**
      * Display the buttons that perform actions on the Node at (x,y) on the canvas,
      * or other non-node actions if there wasn't a node at that location
-     * @param x x-position of Node on canvas
-     * @param y y-position of Node on canvas
+     * @param point Point on canvas
      */
     private def showActions(point: Point): Unit =
       web.getNodeAt(canvas.toWebPos(point), 20) match {
@@ -98,7 +112,15 @@ class WebView(nodeFactory: NodeFactory, private val WIDTH: Int, private val HEIG
    * Panel that the web is drawn on
    */
   class Canvas extends Panel {
-    var scale = 1.0
+    private var _scale = 1.0
+    private val minScale = 0.25
+    private val maxScale = 3.0
+
+    def scale = _scale
+
+    def setScale(x: Double) =
+      _scale = if (x < minScale) minScale else if (x > maxScale) maxScale else x
+
     /**
      * Paint the current state of the Web on this Canvas
      * @param g graphics context
@@ -107,7 +129,7 @@ class WebView(nodeFactory: NodeFactory, private val WIDTH: Int, private val HEIG
       g.clearRect(0, 0, size.width, size.height)
 
       g.translate(size.width/2, size.height/2)
-      g.scale(scale, scale) // rescale canvas for zooming
+      g.scale(_scale, _scale) // rescale canvas for zooming
       g.translate(-size.width/2, -size.height/2)
 
       for (a <- web.arcs) drawArc(a)
