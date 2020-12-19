@@ -11,8 +11,6 @@ import scala.util.Random
 /**
  * A Web is a node-edge graph in which each node has a simulated position.
  * Node's repel each other and Arcs pull Nodes closer together.
- * @param width horizontal bound
- * @param height vertical bound
  */
 class Web {
   /**
@@ -136,7 +134,7 @@ class Web {
   /**
    * Debugging print
    */
-  def print(): Unit =  {
+  private def print(): Unit =  {
     for (n <- nodes) println(n)
     for (a <- arcs) println(s"arc from ${a.source} to ${a.dest} with length ${a.length}")
   }
@@ -205,15 +203,6 @@ trait NodeLike {
    */
   def specialAction()
 }
-
-/**
- * NodeFactory that can take in String and return a NodeLike.
- */
-trait NodeFactory {
-  def produceNode(s: String): NodeLike
-}
-
-
 
 /**
  * Physics stuff

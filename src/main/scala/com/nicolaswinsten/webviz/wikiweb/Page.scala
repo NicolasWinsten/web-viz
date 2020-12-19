@@ -3,7 +3,7 @@ package com.nicolaswinsten.webviz.wikiweb
 import java.net.{URI, URL}
 
 import com.nicolaswinsten.webviz.wikiweb.WikiParser.browser
-import com.nicolaswinsten.webviz.{NodeFactory, NodeLike}
+import com.nicolaswinsten.webviz.NodeLike
 
 import java.awt.{Color, Font}
 
@@ -33,7 +33,7 @@ sealed abstract class Page(val title: String) extends NodeLike {
    * spelling but with different capitalization, so we can make a decent equals method by just setting our
    * title to all upper.
    */
-  protected lazy val fixedTitle = title.toUpperCase()
+  protected lazy val fixedTitle: String = title.toUpperCase()
 
 
   override def equals(obj: Any): Boolean = obj match {
@@ -91,7 +91,7 @@ case class Category(override val title: String) extends Page(title) {
 /**
  * Page factory
  */
-object Wiki extends NodeFactory {
+object Wiki {
   /**
    * Page factory given a Wikipage title
    * @param title title to a Wikipedia page
@@ -137,7 +137,7 @@ object Wiki extends NodeFactory {
    * @return true if no problems occurred, false otherwise
    */
   def openWebpage(page: Page): Boolean = {
-    val url = new URL((WikiParser.url + "/wiki/" + page.title).replaceAll(" ", "_"))
+    val url = new URL((WikiParser.url + "wiki/" + page.title).replaceAll(" ", "_"))
     try return openWebpage(url.toURI)
     catch {
       case e: URISyntaxException =>
@@ -147,10 +147,11 @@ object Wiki extends NodeFactory {
   }
 
   /**
-   * Produces the correct Page given a string title
-   * @param s wikipage title
-   * @return Page for that title
+   * If the given title is a redirect, return the title it redirects to.
+   * Otherwise return the title unchanged. <br>
+   *   Example: resolveTitle("USA") = "United States"
+   * @param title Wikipedia page title to resolve
+   * @return resolved Wikipedia title
    */
-  override def produceNode(s: String): NodeLike = getPage(s)
+  def resolveTitle(title: String): String = getPage(title).doc.title.stripSuffix(" - Wikipedia")
 }
-

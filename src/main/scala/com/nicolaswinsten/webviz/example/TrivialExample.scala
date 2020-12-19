@@ -2,7 +2,7 @@ package com.nicolaswinsten.webviz.example
 
 import java.awt.Font
 
-import com.nicolaswinsten.webviz.{NodeFactory, NodeLike}
+import com.nicolaswinsten.webviz.NodeLike
 
 import scala.swing.Color
 import scala.util.Random
@@ -29,10 +29,4 @@ case class TrivialExample(x: Int) extends NodeLike {
   // these nodes have special action does nothing
   // so nothing will happen when middle mouse clicking on a node
   override def specialAction(): Unit = ()
-}
-
-// Trivial example of a NodeFactory
-// This is only really needed for the first node to be added to the Web
-object TrivialExampleFactory extends NodeFactory {
-  override def produceNode(s: String): NodeLike = TrivialExample(s.toInt)
 }
