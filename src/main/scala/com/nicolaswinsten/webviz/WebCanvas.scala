@@ -1,11 +1,16 @@
 package com.nicolaswinsten.webviz
 
-import java.awt.Color
+import java.awt.image.BufferedImage
+import java.awt.{Color, Graphics2D}
+import java.io.File
+import java.text.SimpleDateFormat
+import java.util.Calendar
 
 import com.nicolaswinsten.webviz.Physics.Vector2
+import javax.imageio.ImageIO
 import javax.swing.SwingUtilities
 
-import scala.swing.{Action, Button, Graphics2D, Label, Panel, Point, PopupMenu, TextField}
+import scala.swing.{Action, Button, Component, Dimension, Graphics2D, Label, Panel, Point, PopupMenu, TextField}
 import scala.swing.event.{MouseClicked, MouseDragged, MousePressed, MouseWheelMoved}
 
 /**
@@ -54,37 +59,54 @@ private class WebCanvas(private val stringToNode: String => NodeLike, private va
   private def canvasCenter: Vector2 = Vector2(size.width/2, size.height/2)
 
   /**
+   * if saveOnPaint is true, then a PNG image containing the web will be written when canvas.repaint() is next called
+   */
+  private var saveOnPaint = false
+
+  /**
    * Paint the current state of the Web on this Canvas
    * @param g graphics context
    */
   override def paintComponent(g: Graphics2D) {
-    g.clearRect(0, 0, size.width, size.height)
+    // draw the the Web onto a given Graphics2D object
+    def drawWebOnGraphics2D(g: Graphics2D): Unit = {
+      g.setBackground(Color.WHITE)
+      g.clearRect(0, 0, size.width, size.height)
 
-    g.translate(size.width/2, size.height/2)
-    g.scale(_scale, _scale) // rescale canvas for zooming
-    g.translate(-size.width/2, -size.height/2)
+      g.translate(size.width / 2, size.height / 2)
+      g.scale(_scale, _scale) // rescale canvas for zooming
+      g.translate(-size.width / 2, -size.height / 2)
 
-    for (a <- web.arcs) drawArc(a)
-    for ((n,_) <- web.nodes) drawNode(n)
+      for (a <- web.arcs) drawArc(a)
+      for ((n, _) <- web.nodes) drawNode(n)
 
+      def drawArc(arc: web.Arc): Unit = {
+        g.setColor(Color.BLACK)
+        val startPoint = web.nodes(arc.source) + center
+        val endPoint = web.nodes(arc.dest) + center
+        g.drawLine(startPoint.x.toInt, startPoint.y.toInt, endPoint.x.toInt, endPoint.y.toInt)
+      }
 
-    def drawArc(arc: web.Arc): Unit = {
-      g.setColor(Color.BLACK)
-      val startPoint = web.nodes(arc.source) + center
-      val endPoint = web.nodes(arc.dest) + center
-      g.drawLine(startPoint.x.toInt, startPoint.y.toInt, endPoint.x.toInt, endPoint.y.toInt)
+      def drawNode(node: NodeLike): Unit = {
+        val pos = web.nodes(node) + center
+        val metrics = g.getFontMetrics(node.font)
+        // clear a rectangle behind the node text so that node label is not covered by drawn arcs
+        g.clearRect(pos.x.toInt - metrics.stringWidth(node.label)/2, pos.y.toInt - metrics.getHeight/4,
+          metrics.stringWidth(node.label), metrics.getHeight)
+        // draw node label
+        g.setColor(node.textColor)
+        g.setFont(node.font)
+        g.drawString(node.label, pos.x.toInt - metrics.stringWidth(node.label)/2, pos.y.toInt + metrics.getHeight/2)
+      }
     }
 
-    def drawNode(node: NodeLike): Unit = {
-      val pos = web.nodes(node) + center
-      val metrics = g.getFontMetrics(node.font)
-      // clear a rectangle behind the node text so that node label is not covered by drawn arcs
-      g.clearRect(pos.x.toInt - metrics.stringWidth(node.label)/2, pos.y.toInt - metrics.getHeight/4,
-        metrics.stringWidth(node.label), metrics.getHeight)
-      // draw node label
-      g.setColor(node.textColor)
-      g.setFont(node.font)
-      g.drawString(node.label, pos.x.toInt - metrics.stringWidth(node.label)/2, pos.y.toInt + metrics.getHeight/2)
+    drawWebOnGraphics2D(g) // draw web on this canvas
+    if (saveOnPaint && !web.isEmpty) { // if saveOnPaint has been toggled, draw web to new PNG
+      val bf = new BufferedImage(size.width, size.height, BufferedImage.TYPE_INT_RGB)
+      drawWebOnGraphics2D(bf.createGraphics())
+      val timeStr = new SimpleDateFormat("MM_dd_YYYY_hms").format(Calendar.getInstance.getTime)
+      ImageIO.write(bf, "png", new File(s"${web.centralNode.label}${timeStr}.png"))
+      saveOnPaint = false
     }
   }
 
@@ -134,11 +156,7 @@ private class WebCanvas(private val stringToNode: String => NodeLike, private va
         contents += new Button( Action("Show Parents"){ web.climb(node); this.visible = false } )
         contents += new Button( Action("Remove"){ web.rem(node); this.visible = false } )
         contents += new Button( Action("Collapse"){ web.collapse(node); this.visible = false } )
-
-        // find maximum width out of the buttons
-        val maxWidth = contents map { _.maximumSize } maxBy { _.width }
-        // assign each button that width
-        contents foreach { _.maximumSize = maxWidth }
+        SwingAligner.unifyWidth(contents)
       }.show(this, point.x, point.y)
       case None => new PopupMenu { // show option to clear web or add new Node if there was no Node at (x,y)
         def removeMenu(): Unit = this.visible = false // close this popup menu
@@ -148,10 +166,15 @@ private class WebCanvas(private val stringToNode: String => NodeLike, private va
             web.add(stringToNode(text), toWebPos(point))
             removeMenu()
           }
+          preferredSize = new Dimension(100 ,preferredSize.height)
         }
         contents += new Label("Enter Node:")
         contents += addNodeTextField
-        contents += clearWebButton
+        if (!web.isEmpty) { // only show Clear Web and Export PNG if Web has nodes
+          contents += clearWebButton
+          contents += new Button( Action("Export PNG"){ saveOnPaint = true; removeMenu() })
+        }
+        SwingAligner.unifyWidth(contents)
       }.show(this, point.x, point.y)
     }
 
@@ -165,4 +188,15 @@ private class WebCanvas(private val stringToNode: String => NodeLike, private va
     SwingUtilities.invokeLater(()=> redraw())
   }
   redraw()
+}
+
+object SwingAligner {
+  /**
+   * Change the given components such that their widths match the maximum size out of all of the components
+   * @param components Swing components
+   */
+  def unifyWidth(components: Iterable[Component]): Unit = {
+    val maxWidth = components map { _.maximumSize } maxBy { _.width }
+    components foreach { _.maximumSize = maxWidth }
+  }
 }

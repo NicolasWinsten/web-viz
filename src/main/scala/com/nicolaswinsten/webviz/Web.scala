@@ -93,6 +93,10 @@ class Web {
     arcs.clear()
   }
 
+  def isEmpty: Boolean = nodes.isEmpty
+
+  def centralNode: NodeLike = nodes.keys maxBy degree
+
 
   /**
    * Update positions of Nodes in the web

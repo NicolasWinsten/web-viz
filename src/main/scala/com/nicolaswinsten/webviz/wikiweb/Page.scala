@@ -19,7 +19,7 @@ sealed abstract class Page(val title: String) extends NodeLike {
   /**
    * The Category pages that this Page is a member of
    */
-  lazy val categories: Seq[Category] = Wiki.filterDisambs(WikiParser.getCategories(doc)) map (Category(_))
+  lazy val categories: Seq[Category] = Wiki.filterDisambs(WikiParser.getCategories(doc)) map Category
 
   /**
    * To be a NodeLike, we let the parents of a Page be its encompassing Categories
@@ -73,8 +73,8 @@ case class Article(override val title: String) extends Page(title) {
  * @param title title for the page
  */
 case class Category(override val title: String) extends Page(title) {
-  lazy val members: Seq[Article] = Wiki.filterDisambs(WikiParser.getCategoryMembers(doc, 10)) map (Article(_))
-  lazy val subcategories: Seq[Category] = Wiki.filterDisambs(WikiParser.getSubcategories(doc)) map (Category(_))
+  lazy val members: Seq[Article] = Wiki.filterDisambs(WikiParser.getCategoryMembers(doc, 10)) map Article
+  lazy val subcategories: Seq[Category] = Wiki.filterDisambs(WikiParser.getSubcategories(doc)) map Category
 
   // strip "Category" from label
   override val _label: String = title.stripPrefix("Category:")
