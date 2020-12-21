@@ -197,7 +197,6 @@ private class WebCanvas(private val stringToNode: String => NodeLike, private va
    * Start redrawing loop to continuously update the web state and draw it on the canvas
    */
   private def redraw(): Unit = {
-    Thread.sleep(10)
     web.update()
     repaint()
     SwingUtilities.invokeLater(()=> redraw())

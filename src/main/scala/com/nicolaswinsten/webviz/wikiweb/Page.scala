@@ -19,7 +19,7 @@ sealed abstract class Page(val title: String) extends NodeLike {
   /**
    * The Category pages that this Page is a member of
    */
-  lazy val categories: Seq[Category] = Wiki.filterDisambs(WikiParser.getCategories(doc)) map Category
+  lazy val categories: Seq[Category] = filterDisambs(WikiParser.getCategories(doc)) map Category
 
   /**
    * To be a NodeLike, we let the parents of a Page be its encompassing Categories
@@ -46,68 +46,15 @@ sealed abstract class Page(val title: String) extends NodeLike {
   /**
    * Open this Page in the browser
    */
-  override def specialAction(): Unit = Wiki.openWebpage(this)
+  override def specialAction(): Unit = openWebpage(this)
 
-}
-
-/**
- * An Article page is a Wikipedia page in the MAIN namespace. In other words it is a normal wikipedia article,
- * not a Category or Talk or Portal.
- * @param title title of the page
- */
-case class Article(override val title: String) extends Page(title) {
-  override val _label: String = title
-  /**
-   * The empty set. Article pages have no children
-   */
-  lazy override val children: Set[NodeLike] = Set()
-
-
-  override val textColor: Color = if (fixedTitle == "KEVIN BACON") Color.MAGENTA else Color.BLACK
-  override val font: Font = if (fixedTitle == "KEVIN BACON") new Font("Helvetica", Font.ITALIC, 40)
-    else new Font("TimesRoman", Font.ITALIC, 10)
-}
-
-/**
- * A Category page from Wikipedia. Category pages have subcategories and category members.
- * @param title title for the page
- */
-case class Category(override val title: String) extends Page(title) {
-  lazy val members: Seq[Article] = Wiki.filterDisambs(WikiParser.getCategoryMembers(doc, 10)) map Article
-  lazy val subcategories: Seq[Category] = Wiki.filterDisambs(WikiParser.getSubcategories(doc)) map Category
-
-  // strip "Category" from label
-  override val _label: String = title.stripPrefix("Category:")
-  /**
-   * Let the children of a Category be its members and subcategories
-   */
-  lazy override val children: Set[NodeLike] = (subcategories ++: members).toSet
-
-
-  override val textColor: Color = Color.BLACK
-  override val font = new Font("TimesRoman", Font.BOLD, 15)
-}
-
-/**
- * Page factory
- */
-object Wiki {
-  /**
-   * Page factory given a Wikipage title
-   * @param title title to a Wikipedia page
-   * @return the Page object for that title
-   */
-  def getPage(title: String): Page = title match {
-    case title if title.startsWith("Category:") => Category(title)
-    case title => Article(title)
-  }
 
   /**
    * Filter disambiguation titles from the given title strings
    * @param titles Wikipedia page titles
    * @return titles without disambiguation titles
    */
-  def filterDisambs(titles: Seq[String]): Seq[String] =
+  protected final def filterDisambs(titles: Seq[String]): Seq[String] =
     titles filter (c => !c.toUpperCase.contains("DISAMBIGUATION"))
 
   import java.awt.Desktop
@@ -118,7 +65,7 @@ object Wiki {
    * @param uri URI to open
    * @return true if successful, false if problem occurred
    */
-  private def openWebpage(uri: URI): Boolean = {
+  private final def openWebpage(uri: URI): Boolean = {
     val desktop = if (Desktop.isDesktopSupported) Desktop.getDesktop
     else null
     if (desktop != null && desktop.isSupported(Desktop.Action.BROWSE)) try {
@@ -136,7 +83,7 @@ object Wiki {
    * @param page Page to open in browser
    * @return true if no problems occurred, false otherwise
    */
-  def openWebpage(page: Page): Boolean = {
+  private final def openWebpage(page: Page): Boolean = {
     val url = new URL((WikiParser.url + "wiki/" + page.title).replaceAll(" ", "_"))
     try return openWebpage(url.toURI)
     catch {
@@ -144,6 +91,55 @@ object Wiki {
         e.printStackTrace()
     }
     false
+  }
+}
+
+/**
+ * An Article page is a Wikipedia page in the MAIN namespace. In other words it is a normal wikipedia article,
+ * not a Category or Talk or Portal.
+ * @param title title of the page
+ */
+case class Article(override val title: String) extends Page(title) {
+  override val _label: String = title
+  /**
+   * The empty set. Article pages have no children
+   */
+  lazy override val children: Set[NodeLike] = Set()
+
+  override val textColor: Color = if (fixedTitle == "KEVIN BACON") Color.MAGENTA else Color.BLACK
+  override val font: Font = if (fixedTitle == "KEVIN BACON") new Font("Helvetica", Font.ITALIC, 40)
+    else new Font("TimesRoman", Font.ITALIC, 10)
+}
+
+/**
+ * A Category page from Wikipedia. Category pages have subcategories and category members.
+ * @param title title for the page
+ */
+case class Category(override val title: String) extends Page(title) {
+  lazy val members: Seq[Article] = filterDisambs(WikiParser.getCategoryMembers(doc, 10)) map Article
+  lazy val subcategories: Seq[Category] = filterDisambs(WikiParser.getSubcategories(doc)) map Category
+
+  // strip "Category" from label
+  override val _label: String = title.stripPrefix("Category:")
+  /**
+   * Let the children of a Category be its members and subcategories
+   */
+  lazy override val children: Set[NodeLike] = (subcategories ++: members).toSet
+
+
+  override val textColor: Color = Color.BLACK
+  override val font = new Font("TimesRoman", Font.BOLD, 15)
+}
+
+object Page {
+  /**
+   * Page factory given a Wikipage title
+   * @param title title to a Wikipedia page
+   * @return the Page object for that title
+   */
+  def apply(title: String): Page = resolveTitle(title) match {
+    case title if title.startsWith("Category:") => Category(title)
+    case title => Article(title)
   }
 
   /**
@@ -153,5 +149,6 @@ object Wiki {
    * @param title Wikipedia page title to resolve
    * @return resolved Wikipedia title
    */
-  def resolveTitle(title: String): String = getPage(title).doc.title.stripSuffix(" - Wikipedia")
+  private final def resolveTitle(title: String): String = WikiParser.fetchHTML(title).title.stripSuffix(" - Wikipedia")
 }
+
