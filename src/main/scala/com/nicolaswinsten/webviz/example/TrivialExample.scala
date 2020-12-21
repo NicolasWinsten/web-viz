@@ -29,4 +29,10 @@ case class TrivialExample(x: Int) extends NodeLike {
   // these nodes have special action does nothing
   // so nothing will happen when middle mouse clicking on a node
   override def specialAction(): Unit = ()
+
+  // set repulsion constant. this determines magnitude that nodes repel each other
+  override def repel(other: NodeLike): Double = 10
+
+  // set the preferred distance between nodes to a constant 100
+  override def prefDist(other: NodeLike): Double = 100
 }

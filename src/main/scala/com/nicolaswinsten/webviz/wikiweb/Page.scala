@@ -35,6 +35,14 @@ sealed abstract class Page(val title: String) extends NodeLike {
    */
   protected lazy val fixedTitle: String = title.toUpperCase()
 
+  /**
+   * Set default repulsion constant to 10
+   * @param other Node to push away
+   *  @return multiplying constant applied to repulsion force from this Node on <var>other</var> Node
+   */
+  override def repel(other: NodeLike): Double = 10
+
+  override def prefDist(other: NodeLike): Double = 150
 
   override def equals(obj: Any): Boolean = obj match {
     case other: Page => other.fixedTitle == fixedTitle
@@ -129,6 +137,26 @@ case class Category(override val title: String) extends Page(title) {
 
   override val textColor: Color = Color.BLACK
   override val font = new Font("TimesRoman", Font.BOLD, 15)
+
+  /**
+   * The repulsion force between two category Pages is twice the default. This is so Category
+   * pages will spread out better.
+   * @param other Node to push away
+   *  @return multiplying constant applied to repulsion force from this Node on <var>other</var> Node
+   */
+  override def repel(other: NodeLike): Double = other match {
+    case other: Category => super.repel(other) * 15
+    case other => super.repel(other)
+  }
+
+  /**
+   * @param other another NodeLike
+   *  @return preferred distance between this and <var>other</var>
+   */
+  override def prefDist(other: NodeLike): Double = other match {
+    case other: Category => super.prefDist(other) * 5 // category pages prefer to be further apart
+    case other => super.prefDist(other)
+  }
 }
 
 object Page {
@@ -154,7 +182,7 @@ object Page {
    */
   private final def resolveTitle(title: String): Option[String] = try {
     Some(WikiParser.fetchHTML(title).title.stripSuffix(" - Wikipedia"))
-  } catch {
+  } catch { // if anything goes wrong, just do nothing
     case _ => None
   }
 

@@ -32,12 +32,6 @@ class Web {
   def bounds: (Double, Double, Double, Double) = (_bounds.x1, _bounds.y1, _bounds.x2, _bounds.y2)
 
   /**
-   * Nodes will be repelled if they are closer than this distance.
-   * Nodes connected by arcs will be attracted if the arc length is greater than this distance
-   */
-  private val prefNodeDist = 300
-
-  /**
    * Add a new Node to this Web. If the given node has a
    * relationship to any pre-existing node, then construct arc between them
    * @param node NodeLike to add
@@ -114,14 +108,14 @@ class Web {
     arcs foreach {_.pull()} // have each arc pull their nodes together
 
     // brute force a collision detection between nodes
-    for ((n1,pos1) <- nodes) for ((n2,pos2) <- nodes) if (n1 != n2 && dist(pos1,pos2) < prefNodeDist) {
+    for ((n1,pos1) <- nodes) for ((n2,pos2) <- nodes) if (n1 != n2 && dist(pos1,pos2) < (n1 prefDist n2)) {
       val force = if (pos1 == pos2) {
         // if the two Nodes are directly on top of each other, push them in a random direction
         val r = Random
         def randCoord = (r.nextInt % 20) * (if (r.nextBoolean()) 1 else -1)
         Vector2(randCoord,randCoord)
       }  else // repel Nodes in opposite directions
-        (pos2 - pos1) * (10 / math.pow(dist(pos1, pos2), 2))
+        (pos2 - pos1) * ((n1 repel n2) / math.pow(dist(pos1, pos2), 2))
 
       nodes(n1) -= force
       nodes(n2) += force
@@ -174,7 +168,7 @@ class Web {
       val destPos = nodes(dest)
 
       val force: Vector2 =
-        if (length > prefNodeDist) {
+        if (length > (source prefDist dest)) {
           (destPos - sourcePos) * strength
         } else Vector2(0,0)
 
@@ -203,7 +197,7 @@ trait NodeLike {
    */
   val parents: Set[NodeLike]
 
-  def label: String = _label
+  final def label: String = _label
 
   /**
    * display color of label
@@ -218,6 +212,20 @@ trait NodeLike {
    * define special action.  This special action wille execute when middle mouse clicking on a Node in WebView
    */
   def specialAction()
+
+  /**
+   * Define the magnitude of repulsion between Nodes
+   * @param other Node to push away
+   * @return multiplying constant applied to repulsion force from this Node on <var>other</var> Node
+   */
+  def repel(other: NodeLike): Double
+
+  /**
+   * Define the preferred distance between this Node and the given Node
+   * @param other another NodeLike
+   * @return preferred distance between this and <var>other</var>
+   */
+  def prefDist(other: NodeLike): Double
 }
 
 /**
