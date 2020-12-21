@@ -22,6 +22,15 @@ class Web {
    */
   val arcs: mutable.Set[Arc] = mutable.HashSet[Arc]()
 
+  // initialize the bounds of this web.
+  private var _bounds = Bound(0, 0, 0, 0)
+
+  /**
+   * @return the minimum and maximum x and y node positions of this web <br>
+   *         (min x, min y, max x, max y)
+   */
+  def bounds: (Double, Double, Double, Double) = (_bounds.x1, _bounds.y1, _bounds.x2, _bounds.y2)
+
   /**
    * Nodes will be repelled if they are closer than this distance.
    * Nodes connected by arcs will be attracted if the arc length is greater than this distance
@@ -102,7 +111,7 @@ class Web {
    * Update positions of Nodes in the web
    */
   def update(): Unit = {
-    arcs.foreach(_.pull()) // have each arc pull their nodes together
+    arcs foreach {_.pull()} // have each arc pull their nodes together
 
     // brute force a collision detection between nodes
     for ((n1,pos1) <- nodes) for ((n2,pos2) <- nodes) if (n1 != n2 && dist(pos1,pos2) < prefNodeDist) {
@@ -117,6 +126,9 @@ class Web {
       nodes(n1) -= force
       nodes(n2) += force
     }
+
+    // update bounds of this web
+    nodes.values foreach {v => _bounds = _bounds(v)}
   }
 
   /**
@@ -138,7 +150,7 @@ class Web {
   /**
    * Debugging print
    */
-  private def print(): Unit =  {
+  def print(): Unit =  {
     for (n <- nodes) println(n)
     for (a <- arcs) println(s"arc from ${a.source} to ${a.dest} with length ${a.length}")
   }
@@ -228,4 +240,25 @@ object Physics {
    */
   def dist(a: Vector2, b: Vector2): Double =
     math.sqrt(math.pow(a.x-b.x,2) + math.pow(a.y-b.y,2))
+
+  import scala.math.{min, max}
+
+  /**
+   * Rectangular bounds of a body
+   * @param x1 minimum x position of body
+   * @param y1 minimum y position of body
+   * @param x2 maximum x position of body
+   * @param y2 maximum y position of body
+   */
+  case class Bound(x1: Double, y1: Double, x2: Double, y2: Double) {
+    /**
+     * Produce new Bound that expands to fit the given vector
+     * @param v new Vector2 to bound
+     * @return new Bound that incorporates the given vector
+     */
+    def apply(v: Vector2): Bound = Bound(
+      min(v.x, x1), min(v.y, y1), max(v.x, x2), max(v.y, y2)
+    )
+  }
 }
+

@@ -1,5 +1,5 @@
 ThisBuild / organization := "com.nicolaswinsten"
-ThisBuild / version := "1.0.3"
+ThisBuild / version := "1.2.0"
 ThisBuild / scalaVersion := "2.13.4"
 name := "web-viz"
 

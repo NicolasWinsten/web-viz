@@ -1,7 +1,7 @@
 package com.nicolaswinsten.webviz
 
 import java.awt.image.BufferedImage
-import java.awt.{Color, Graphics2D}
+import java.awt.Color
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Calendar
@@ -69,9 +69,10 @@ private class WebCanvas(private val stringToNode: String => NodeLike, private va
    */
   override def paintComponent(g: Graphics2D) {
     // draw the the Web onto a given Graphics2D object
-    def drawWebOnGraphics2D(g: Graphics2D): Unit = {
+    // w and h are the width and height of the drawing area
+    def drawWebOnGraphics2D(g: Graphics2D, w: Int, h: Int): Unit = {
       g.setBackground(Color.WHITE)
-      g.clearRect(0, 0, size.width, size.height)
+      g.clearRect(0, 0, w, h)
 
       g.translate(size.width / 2, size.height / 2)
       g.scale(_scale, _scale) // rescale canvas for zooming
@@ -100,13 +101,27 @@ private class WebCanvas(private val stringToNode: String => NodeLike, private va
       }
     }
 
-    drawWebOnGraphics2D(g) // draw web on this canvas
+    drawWebOnGraphics2D(g, size.width, size.height) // draw web on this canvas
     if (saveOnPaint && !web.isEmpty) { // if saveOnPaint has been toggled, draw web to new PNG
-      val bf = new BufferedImage(size.width, size.height, BufferedImage.TYPE_INT_RGB)
-      drawWebOnGraphics2D(bf.createGraphics())
+      val originalCenter = _center
+      val originalScale = _scale
+
+      // grab current bounds of the web
+      val (minX, minY, maxX, maxY) = web.bounds
+
+      // briefly reset scale and center canvas
+      _scale = 1.0 // set scale back to normal, so that everything is readable
+      _center = Vector2(-minX + 100, -minY + 100) // center canvas to capture all nodes
+
+      val bf = new BufferedImage((maxX - minX).toInt + 200, (maxY - minY).toInt + 200, BufferedImage.TYPE_INT_RGB)
+      drawWebOnGraphics2D(bf.createGraphics(), bf.getWidth, bf.getHeight)
       val timeStr = new SimpleDateFormat("MM_dd_YYYY_hms").format(Calendar.getInstance.getTime)
-      ImageIO.write(bf, "png", new File(s"${web.centralNode.label}${timeStr}.png"))
+      ImageIO.write(bf, "png", new File(s"${web.centralNode.label}$timeStr.png"))
       saveOnPaint = false
+
+      // revert canvas scale and center
+      _scale = originalScale
+      _center = originalCenter
     }
   }
 
