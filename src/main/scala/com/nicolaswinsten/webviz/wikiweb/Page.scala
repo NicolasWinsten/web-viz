@@ -137,18 +137,26 @@ object Page {
    * @param title title to a Wikipedia page
    * @return the Page object for that title
    */
-  def apply(title: String): Page = resolveTitle(title) match {
-    case title if title.startsWith("Category:") => Category(title)
-    case title => Article(title)
+  def apply(title: String): Option[Page] = resolveTitle(title) match {
+    case Some(title) => Some( title match {
+      case title if title.startsWith("Category:") => Category(title)
+      case title => Article(title)
+    } )
+    case None => None
   }
 
   /**
    * If the given title is a redirect, return the title it redirects to.
-   * Otherwise return the title unchanged. <br>
+   * Otherwise return the title unchanged. If the given title does not exist, return None<br>
    *   Example: resolveTitle("USA") = "United States"
    * @param title Wikipedia page title to resolve
    * @return resolved Wikipedia title
    */
-  private final def resolveTitle(title: String): String = WikiParser.fetchHTML(title).title.stripSuffix(" - Wikipedia")
+  private final def resolveTitle(title: String): Option[String] = try {
+    Some(WikiParser.fetchHTML(title).title.stripSuffix(" - Wikipedia"))
+  } catch {
+    case _ => None
+  }
+
 }
 

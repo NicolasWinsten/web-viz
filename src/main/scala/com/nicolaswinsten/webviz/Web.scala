@@ -35,7 +35,7 @@ class Web {
    * Nodes will be repelled if they are closer than this distance.
    * Nodes connected by arcs will be attracted if the arc length is greater than this distance
    */
-  private val prefNodeDist = 150
+  private val prefNodeDist = 300
 
   /**
    * Add a new Node to this Web. If the given node has a

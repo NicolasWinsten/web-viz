@@ -6,7 +6,7 @@ import scala.swing._
  * GUI View of a new Web
  * @param stringToNode function that produces a Node from a String
  */
-class WebView(stringToNode: String => NodeLike, private val WIDTH: Int, private val HEIGHT: Int)
+class WebView(stringToNode: String => Option[NodeLike], private val WIDTH: Int, private val HEIGHT: Int)
   extends SimpleSwingApplication {
   override def top: Frame = new MainFrame{
     title = "Web"

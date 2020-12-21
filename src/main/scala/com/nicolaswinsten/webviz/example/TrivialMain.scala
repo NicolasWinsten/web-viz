@@ -3,5 +3,14 @@ package com.nicolaswinsten.webviz.example
 import com.nicolaswinsten.webviz.WebView
 
 object TrivialMain extends App {
-  new WebView((s: String) => TrivialExample(s.toInt), 1500, 900).main(args)
+  def sToIntNode(s: String) = {
+    try {
+      Some(TrivialExample(s.toInt))
+    }
+    catch {
+      case _: NumberFormatException => None
+    }
+  }
+
+  new WebView(sToIntNode, 1500, 900).main(args)
 }

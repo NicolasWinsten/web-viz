@@ -18,12 +18,12 @@ import scala.swing.event.{MouseClicked, MouseDragged, MousePressed, MouseWheelMo
  * @param stringToNode String to NodeLike function
  * @param web Web to draw on this canvas
  */
-private class WebCanvas(private val stringToNode: String => NodeLike, private val web: Web) extends Panel {
+private class WebCanvas(private val stringToNode: String => Option[NodeLike], private val web: Web) extends Panel {
   /**
    * Construct new WebCanvas with an empty Web
    * @param stringToNode String => Node producer
    */
-  def this(stringToNode: String => NodeLike) = this(stringToNode, new Web())
+  def this(stringToNode: String => Option[NodeLike]) = this(stringToNode, new Web())
 
   private var _scale = 1.0
   private val minScale = 0.25
@@ -178,8 +178,13 @@ private class WebCanvas(private val stringToNode: String => NodeLike, private va
         val clearWebButton = new Button( Action("Clear Web"){ web.clear(); removeMenu()})
         val addNodeTextField = new TextField {
           action = Action("Add Node"){
-            web.add(stringToNode(text), toWebPos(point))
-            removeMenu()
+          // convert the text in this field into a Node and add it to web
+            stringToNode(text) match {
+              case Some(node) =>
+                web.add(node, toWebPos(point))
+                removeMenu()
+              case None => ()
+            }
           }
           preferredSize = new Dimension(100 ,preferredSize.height)
         }
