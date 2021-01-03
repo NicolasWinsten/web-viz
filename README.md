@@ -35,7 +35,7 @@ trait NodeLike {
 }
 ```
 
-Here's a [simple example](https://github.com/NicolasWinsten/web-viz/blob/master/src/main/scala/com/nick/webviz/example/TrivialExample.scala) of what that might look like.
+Here's a [simple example](/src/main/scala/com/nicolaswinsten/webviz/example/TrivialExample.scala) of what that might look like.
 
 After that, all you have to do is create a new `WebView` and pass in a `String => YourNodeLike` function that produces one of your `NodeLike` objects from a String:
 ```scala
