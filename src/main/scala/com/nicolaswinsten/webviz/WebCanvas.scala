@@ -175,7 +175,7 @@ private class WebCanvas(private val stringToNode: String => Option[NodeLike], pr
       case None => new PopupMenu { // show option to clear web or add new Node if there was no Node at (x,y)
         def removeMenu(): Unit = this.visible = false // close this popup menu
         val clearWebButton = new Button( Action("Clear Web"){ web.clear(); removeMenu()})
-        val addNodeTextField = new TextField {
+        val addNodeTextField: TextField = new TextField {
           action = Action("Add Node"){
           // convert the text in this field into a Node and add it to web
             stringToNode(text) match {
