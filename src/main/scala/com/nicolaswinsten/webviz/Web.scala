@@ -61,7 +61,7 @@ class Web {
    * @param node NodeLike to remove
    */
   def rem(node: NodeLike): Unit = {
-    for (a <- arcs if  a.source == node || a.dest == node) arcs -= a
+    for (a <- arcs if a.source == node || a.dest == node) arcs -= a
     nodes -= node
   }
 
@@ -69,13 +69,13 @@ class Web {
    * Add all the given NodeLike's children to the Web, but only if the given NodeLike is already in the Web
    * @param n NodeLike to expand web with
    */
-  def spin(n: NodeLike): Unit = if (nodes contains n) n.children.foreach(add(_, nodes(n)))
+  def spin(n: NodeLike): Unit = if (nodes contains n) n.children foreach { add(_, nodes(n)) }
 
   /**
    * Add all the given NodeLike's parents to the Web, but only if the given NodeLike is already in the Web
    * @param n NodeLike to expand web with
    */
-  def climb(n: NodeLike): Unit = if (nodes contains n) n.parents.foreach(add(_, nodes(n)))
+  def climb(n: NodeLike): Unit = if (nodes contains n) n.parents foreach { add(_, nodes(n)) }
 
   /**
    * Remove the given NodeLike from the web along with all of its adjacent NodeLikes with degree 1
@@ -83,12 +83,9 @@ class Web {
    */
   def collapse(n: NodeLike): Unit = {
     if (nodes contains n) {
-      arcs filter (a => a.source == n || a.dest == n) map {
-        // find all nodes connected to n
-        case Arc(`n`, other) => other
-        case Arc(other, `n`) => other
-          // and then remove those that are only connected to n
-      } filter (other => degree(other) < 2) foreach rem
+      nodes.keys filter { // find all dangling nodes connected to n
+        node => n.children.contains(node) || n.parents.contains(node)
+      } filter { degree(_) == 1 } foreach rem
       rem(n) // finally remove n
     }
   }
@@ -211,7 +208,7 @@ trait NodeLike {
   val font: Font
 
   /**
-   * define special action.  This special action wille execute when middle mouse clicking on a Node in WebView
+   * define special action.  This special action will execute when double clicking on a node in the WebCanvas
    */
   def specialAction()
 
