@@ -141,13 +141,12 @@ private class WebCanvas(private val stringToNode: String => Option[NodeLike], pr
   private var previousDragPos: Vector2 = center
 
   reactions += {
-    // user clicked somewhere on canvas
-    case MouseClicked(_, point, modifiers, clicks, _) =>
-      if (modifiers == 256) showActions(point) // right click
-      else if (clicks == 2) web.getNodeAt(toWebPos(point), 20) match {
-        case Some(node) => node.specialAction() // double click
-        case _ => ()
-      }
+    case MouseClicked(_, point, 256, _, _) => showActions(point) // right click
+    case MouseClicked(_, point, _, 2, _) => web.getNodeAt(toWebPos(point), 20) match {
+        // double click
+      case Some(node) => node.specialAction()
+      case None => ()
+    }
     // user scrolled mouse wheel. scale the canvas to zoom
     case MouseWheelMoved(_, _, _, rotation) => setScale(scale - rotation * 0.1 * scale)
     // user presses mouse, initialize drag position in case user tries to pan the canvas

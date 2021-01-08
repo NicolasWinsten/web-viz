@@ -22,14 +22,17 @@ class Web {
    */
   val arcs: mutable.Set[Arc] = mutable.HashSet[Arc]()
 
-  // initialize the bounds of this web.
-  private var _bounds = Bound(0, 0, 0, 0)
-
   /**
    * @return the minimum and maximum x and y node positions of this web <br>
    *         (min x, min y, max x, max y)
    */
-  def bounds: (Double, Double, Double, Double) = (_bounds.x1, _bounds.y1, _bounds.x2, _bounds.y2)
+  def bounds: (Double, Double, Double, Double) = {
+    val positions = nodes.values
+    ( positions minBy { _.x } x,
+      positions minBy { _.y } y,
+      positions maxBy { _.x } x,
+      positions maxBy { _.y } y )
+  }
 
   /**
    * Add a new Node to this Web. If the given node has a
@@ -81,10 +84,12 @@ class Web {
   def collapse(n: NodeLike): Unit = {
     if (nodes contains n) {
       arcs filter (a => a.source == n || a.dest == n) map {
+        // find all nodes connected to n
         case Arc(`n`, other) => other
         case Arc(other, `n`) => other
+          // and then remove those that are only connected to n
       } filter (other => degree(other) < 2) foreach rem
-      rem(n)
+      rem(n) // finally remove n
     }
   }
 
@@ -120,9 +125,6 @@ class Web {
       nodes(n1) -= force
       nodes(n2) += force
     }
-
-    // update bounds of this web
-    nodes.values foreach {v => _bounds = _bounds(v)}
   }
 
   /**
@@ -249,24 +251,5 @@ object Physics {
   def dist(a: Vector2, b: Vector2): Double =
     math.sqrt(math.pow(a.x-b.x,2) + math.pow(a.y-b.y,2))
 
-  import scala.math.{min, max}
-
-  /**
-   * Rectangular bounds of a body
-   * @param x1 minimum x position of body
-   * @param y1 minimum y position of body
-   * @param x2 maximum x position of body
-   * @param y2 maximum y position of body
-   */
-  case class Bound(x1: Double, y1: Double, x2: Double, y2: Double) {
-    /**
-     * Produce new Bound that expands to fit the given vector
-     * @param v new Vector2 to bound
-     * @return new Bound that incorporates the given vector
-     */
-    def apply(v: Vector2): Bound = Bound(
-      min(v.x, x1), min(v.y, y1), max(v.x, x2), max(v.y, y2)
-    )
-  }
 }
 

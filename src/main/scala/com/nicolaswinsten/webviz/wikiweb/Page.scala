@@ -8,7 +8,7 @@ import com.nicolaswinsten.webviz.NodeLike
 import java.awt.{Color, Font}
 
 /**
- * Abstract class for a Wikipedia page.
+ * Abstract class for a Wikipedia page to be used as a node in a Web.
  * @param title title for the page
  */
 sealed abstract class Page(val title: String) extends NodeLike {
@@ -33,7 +33,7 @@ sealed abstract class Page(val title: String) extends NodeLike {
    * spelling but with different capitalization, so we can make a decent equals method by just setting our
    * title to all upper.
    */
-  protected lazy val fixedTitle: String = title.toUpperCase()
+  protected lazy val fixedTitle: String = title toUpperCase
 
   /**
    * Set default repulsion constant to 10
