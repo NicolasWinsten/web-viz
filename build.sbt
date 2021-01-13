@@ -5,7 +5,7 @@ name := "web-viz"
 
 // Scala Swing module
 libraryDependencies += "org.scala-lang.modules" %% "scala-swing" % "3.0.0"
-// Scala scraper for WikiWeb
+// HTML scraper for WikiWeb. Used to scrape wikipedia pages for relevant info
 libraryDependencies += "net.ruippeixotog" %% "scala-scraper" % "2.2.0"
 
 

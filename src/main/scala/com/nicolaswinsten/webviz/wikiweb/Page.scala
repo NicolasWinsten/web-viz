@@ -165,12 +165,10 @@ object Page {
    * @param title title to a Wikipedia page
    * @return the Page object for that title
    */
-  def apply(title: String): Option[Page] = resolveTitle(title) match {
-    case Some(title) => Some( title match {
-      case title if title.startsWith("Category:") => Category(title)
-      case title => Article(title)
-    } )
-    case None => None
+  def apply(title: String): Page = {
+    val resolvedTitle = resolveTitle(title)
+    if (resolvedTitle startsWith "Category:") Category(resolvedTitle)
+    else Article(resolvedTitle)
   }
 
   /**
@@ -180,10 +178,10 @@ object Page {
    * @param title Wikipedia page title to resolve
    * @return resolved Wikipedia title
    */
-  private final def resolveTitle(title: String): Option[String] = try {
-    Some(WikiParser.fetchHTML(title).title.stripSuffix(" - Wikipedia"))
-  } catch { // if anything goes wrong, just do nothing
-    case _ => None
+  private final def resolveTitle(title: String): String =
+    try WikiParser.fetchHTML(title).title.stripSuffix(" - Wikipedia")
+    catch {
+      case _: Exception => throw new RuntimeException(s"Something went wrong resolving title $title")
   }
 
 }

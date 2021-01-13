@@ -143,7 +143,7 @@ private class WebCanvas(private val stringToNode: String => Option[NodeLike], pr
   reactions += {
     case MouseClicked(_, point, 256, _, _) => showActions(point) // right click
     case MouseClicked(_, point, _, 2, _) => web.getNodeAt(toWebPos(point), 20) match {
-        // double click
+        // double click on nodes to activate their special action
       case Some(node) => node.specialAction()
       case None => ()
     }
