@@ -11,7 +11,7 @@ import scala.util.Random
 // it will probable be necessary to include a good hashCode and equals method
 case class TrivialExample(x: Int) extends NodeLike {
   // the label for the node to display
-  override protected val _label: String = x.toString
+  override val label: String = x.toString
 
   // the children nodes are the two integers after x
   lazy override val children: Set[NodeLike] = Set(TrivialExample(x+1), TrivialExample(x+2))

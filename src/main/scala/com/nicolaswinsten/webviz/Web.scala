@@ -1,7 +1,8 @@
 package com.nicolaswinsten.webviz
 
-import scala.swing.Font
+import java.awt.Color
 
+import scala.swing.Font
 import Physics._
 
 import scala.collection.mutable
@@ -184,47 +185,46 @@ class Web {
  */
 trait NodeLike {
   /**
-   * Label to display this Node with
-   */
-  protected val _label: String
-  /**
    * Children nodes of this Node
    */
   val children: Set[NodeLike]
+
   /**
    * Parent Nodes of this Node
    */
   val parents: Set[NodeLike]
 
-  final def label: String = _label
+  /** Label to display Node with
+   */
+  def label: String
 
   /**
    * display color of label
    */
-  val textColor: Color
+  val textColor: Color = Color.BLACK
   /**
    * display font of label
    */
-  val font: Font
+  val font: Font = Font("TimesRoman", Font.Plain, 12)
 
   /**
    * define special action.  This special action will execute when double clicking on a node in the WebCanvas
    */
-  def specialAction()
+  def specialAction(): Unit = ()
 
   /**
    * Define the magnitude of repulsion between Nodes
    * @param other Node to push away
    * @return multiplying constant applied to repulsion force from this Node on <var>other</var> Node
    */
-  def repel(other: NodeLike): Double
+  def repel(other: NodeLike): Double = 10
 
   /**
    * Define the preferred distance between this Node and the given Node
    * @param other another NodeLike
    * @return preferred distance between this and <var>other</var>
    */
-  def prefDist(other: NodeLike): Double
+  def prefDist(other: NodeLike): Double = 100
 }
 
 /**

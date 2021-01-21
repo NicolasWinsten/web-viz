@@ -1,11 +1,12 @@
 package com.nicolaswinsten.webviz.wikiweb
 
+import java.awt.Color
 import java.net.{URI, URL}
 
 import com.nicolaswinsten.webviz.wikiweb.WikiParser.browser
 import com.nicolaswinsten.webviz.NodeLike
 
-import java.awt.{Color, Font}
+import scala.swing.Font
 
 /**
  * Abstract class for a Wikipedia page to be used as a node in a Web.
@@ -33,7 +34,7 @@ sealed abstract class Page(val title: String) extends NodeLike {
    * spelling but with different capitalization, so we can make a decent equals method by just setting our
    * title to all upper.
    */
-  protected lazy val fixedTitle: String = title toUpperCase
+  protected lazy val fixedTitle: String = title.toUpperCase
 
   /**
    * Set default repulsion constant to 10
@@ -108,15 +109,15 @@ sealed abstract class Page(val title: String) extends NodeLike {
  * @param title title of the page
  */
 case class Article(override val title: String) extends Page(title) {
-  override val _label: String = title
+  override val label: String = title
   /**
    * The empty set. Article pages have no children
    */
   lazy override val children: Set[NodeLike] = Set()
 
   override val textColor: Color = if (fixedTitle == "KEVIN BACON") Color.MAGENTA else Color.BLACK
-  override val font: Font = if (fixedTitle == "KEVIN BACON") new Font("Helvetica", Font.ITALIC, 40)
-    else new Font("TimesRoman", Font.ITALIC, 10)
+  override val font: Font = if (fixedTitle == "KEVIN BACON") Font("Helvetica", Font.Italic, 40)
+    else Font("TimesRoman", Font.Italic, 10)
 }
 
 /**
@@ -128,15 +129,13 @@ case class Category(override val title: String) extends Page(title) {
   lazy val subcategories: Seq[Category] = filterDisambs(WikiParser.getSubcategories(doc)) map Category
 
   // strip "Category" from label
-  override val _label: String = title.stripPrefix("Category:")
+  override val label: String = title.stripPrefix("Category:")
   /**
    * Let the children of a Category be its members and subcategories
    */
   lazy override val children: Set[NodeLike] = (subcategories ++: members).toSet
 
-
-  override val textColor: Color = Color.BLACK
-  override val font = new Font("TimesRoman", Font.BOLD, 15)
+  override val font: Font = Font("TimesRoman", Font.Bold, 15)
 
   /**
    * The repulsion force between two category Pages is twice the default. This is so Category
