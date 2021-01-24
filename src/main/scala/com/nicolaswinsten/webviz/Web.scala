@@ -29,10 +29,10 @@ class Web {
    */
   def bounds: (Double, Double, Double, Double) = {
     val positions = nodes.values
-    ( positions minBy { _.x } x,
-      positions minBy { _.y } y,
-      positions maxBy { _.x } x,
-      positions maxBy { _.y } y )
+    ( (positions minBy { _.x }).x,
+      (positions minBy { _.y }).y,
+      (positions maxBy { _.x }).x,
+      (positions maxBy { _.y }).y )
   }
 
   /**

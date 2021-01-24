@@ -13,7 +13,7 @@ object WikiParser {
    * @param title wikipedia title including namespace
    * @return HTML document of the page of the given wikipedia title
    */
-  def fetchHTML(title: String): browser.DocumentType = browser.get(url + "wiki/" + title)
+  def fetchHTML(title: String): browser.DocumentType = browser get (url + "wiki/" + title)
 
   /**
    * Extracts the normal categories from a given Wikipedia page
