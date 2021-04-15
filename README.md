@@ -1,3 +1,4 @@
+![wikiweb](/wikiwebinaction.gif)
 # web-viz
 An interactive graph visualizer!
 ![Kevin Bacon](/KevinBaconViz.PNG)
